@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Expenses — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="service.html">Service</a>
+      <a href="expenses.html" class="active">Expenses</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+      <a href="#" title="Notifications" style="margin-left:6px;color:var(--text-mute);padding:0 10px;">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <h1>Expenses</h1>
+    <div class="sub">Year to date &middot; Jan 1 &ndash; Apr 23, 2026</div>
+  </section>
+
+  <main class="container">
+    <!-- Summary tiles -->
+    <div class="grid">
+      <div class="card col-3">
+        <h3>Total Spent</h3>
+        <div class="big">$<span id="exp-total">4,820</span></div>
+        <div class="foot">YTD</div>
+      </div>
+      <div class="card col-3">
+        <h3>Service</h3>
+        <div class="big">$<span id="exp-service">2,145</span></div>
+        <div class="foot">3 visits</div>
+      </div>
+      <div class="card col-3">
+        <h3>Fuel</h3>
+        <div class="big">$<span id="exp-fuel">1,680</span></div>
+        <div class="foot">6 fill-ups</div>
+      </div>
+      <div class="card col-3">
+        <h3>Storage &amp; Fees</h3>
+        <div class="big">$<span id="exp-storage">995</span></div>
+        <div class="foot">Slip, detail, reg</div>
+      </div>
+    </div>
+
+    <!-- Breakdown chart -->
+    <div class="section-title">
+      <h2>Breakdown</h2>
+      <a href="#" id="btn-export">Export CSV &rarr;</a>
+    </div>
+    <div class="card">
+      <div class="chart-wrap" id="exp-chart"></div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="section-title">
+      <h2>Transactions</h2>
+      <div class="actions-row">
+        <button class="btn btn-ghost" id="btn-add-tx">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add expense
+        </button>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="log">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Vendor</th>
+            <th style="text-align:right;">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("btn-add-tx")?.addEventListener("click", () =>
+      HCB.toast({ title: "Add expense", body: "Expense entry form would open here.", tone: "good" }));
+    document.getElementById("btn-export")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      HCB.toast({ title: "Export started", body: "CSV will download shortly.", tone: "good" });
+    });
+  </script>
+</body>
+</html>

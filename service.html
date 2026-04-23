@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="service.html" class="active">Service</a>
+      <a href="expenses.html">Expenses</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+      <a href="#" title="Notifications" style="margin-left:6px;color:var(--text-mute);padding:0 10px;">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <h1>Service</h1>
+    <div class="sub" id="boat-sub">28&prime; Howard Custom &middot; Hull 042 &ldquo;Outta Control&rdquo;</div>
+  </section>
+
+  <main class="container">
+    <!-- Top summary tiles -->
+    <div class="grid">
+      <div class="card col-4">
+        <h3>Next Service</h3>
+        <div class="big" style="font-size:22px;line-height:1.3;margin-top:6px;">100-hr Engine Inspection</div>
+        <div class="foot">Scheduled May 4, 2026 &middot; Howard Service &ndash; Valencia</div>
+      </div>
+      <div class="card col-4">
+        <h3>Engine Hours</h3>
+        <div class="big"><span id="engine-hours">398.1</span><span class="unit">hrs</span></div>
+        <div class="foot">Due in <strong style="color:var(--warn)">11.9 hrs</strong></div>
+      </div>
+      <div class="card col-4">
+        <h3>Last Service</h3>
+        <div class="big" style="font-size:22px;line-height:1.3;margin-top:6px;">Oil &amp; Filter</div>
+        <div class="foot">Apr 02, 2026 &middot; Howard Service &ndash; Valencia</div>
+      </div>
+    </div>
+
+    <!-- Service intervals -->
+    <div class="section-title"><h2>Service Intervals</h2></div>
+    <div class="card">
+      <div class="intervals" id="service-intervals">
+        <!-- populated by app.js -->
+      </div>
+    </div>
+
+    <!-- Service log -->
+    <div class="section-title">
+      <h2>Service Log</h2>
+      <div class="actions-row">
+        <button class="btn btn-ghost" id="btn-add-entry">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add entry
+        </button>
+        <button class="btn btn-primary" id="btn-book">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h12"/></svg>
+          Book service
+        </button>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="log">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Work performed</th>
+            <th>Shop</th>
+            <th>Hours</th>
+            <th>Cost</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="service-log-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Receipts -->
+    <div class="section-title">
+      <h2>Receipts</h2>
+      <a href="#" id="btn-view-all-receipts">View all &rarr;</a>
+    </div>
+    <div class="card receipts-card">
+      <div class="receipts-grid">
+        <label class="uploader" id="uploader">
+          <div class="uploader-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M24 32V14"/>
+              <path d="M16 22l8-8 8 8"/>
+              <path d="M8 34v4a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-4"/>
+            </svg>
+          </div>
+          <strong>Drop a receipt here</strong>
+          <small>or click to browse &mdash; JPG, PNG, PDF up to 25MB</small>
+          <span class="uploader-hint">Receipts are auto-matched to your service log entries.</span>
+          <input type="file" accept="image/*,application/pdf" style="display:none;" />
+        </label>
+
+        <div class="recent-receipts" aria-label="Recent receipts">
+          <div class="recent-receipts-head">
+            <span>Recent uploads</span>
+            <span class="meta">3 this year</span>
+          </div>
+          <ul class="receipt-list">
+            <li>
+              <div class="receipt-thumb service" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M14 4v6h6"/><path d="M8 14h8M8 18h6"/></svg>
+              </div>
+              <div class="receipt-meta">
+                <div class="receipt-title">Howard Service &mdash; Oil &amp; filter</div>
+                <div class="meta">Apr 02, 2026 &middot; $645.00 &middot; PDF</div>
+              </div>
+              <span class="pill good"><span class="dot"></span> Matched</span>
+            </li>
+            <li>
+              <div class="receipt-thumb fuel" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h12V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16z"/><path d="M15 10h2a3 3 0 0 1 3 3v5a2 2 0 1 1-4 0v-3"/></svg>
+              </div>
+              <div class="receipt-meta">
+                <div class="receipt-title">Castaic Fuel Dock</div>
+                <div class="meta">Apr 19, 2026 &middot; $285.00 &middot; JPG</div>
+              </div>
+              <span class="pill good"><span class="dot"></span> Matched</span>
+            </li>
+            <li>
+              <div class="receipt-thumb service" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M14 4v6h6"/><path d="M8 14h8M8 18h6"/></svg>
+              </div>
+              <div class="receipt-meta">
+                <div class="receipt-title">Annual winterization</div>
+                <div class="meta">Feb 14, 2026 &middot; $980.00 &middot; PDF</div>
+              </div>
+              <span class="pill good"><span class="dot"></span> Matched</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("btn-add-entry")?.addEventListener("click", () =>
+      HCB.toast({ title: "Add entry", body: "Service entry form would open here.", tone: "good" }));
+    document.getElementById("btn-book")?.addEventListener("click", () =>
+      HCB.toast({ title: "Booking request sent", body: "Howard Service — Valencia will confirm your slot.", tone: "good" }));
+    document.getElementById("uploader")?.addEventListener("click", (e) => {
+      if (e.target.tagName === "INPUT") return;
+      document.querySelector("#uploader input").click();
+    });
+    document.querySelector("#uploader input")?.addEventListener("change", (e) => {
+      const f = e.target.files?.[0];
+      if (f) HCB.toast({ title: "Receipt uploaded", body: `${f.name} attached to your records.`, tone: "good" });
+    });
+    // Drag and drop polish
+    const up = document.getElementById("uploader");
+    if (up) {
+      ["dragenter","dragover"].forEach(ev => up.addEventListener(ev, (e) => {
+        e.preventDefault(); up.classList.add("dragover");
+      }));
+      ["dragleave","drop"].forEach(ev => up.addEventListener(ev, (e) => {
+        e.preventDefault(); up.classList.remove("dragover");
+      }));
+      up.addEventListener("drop", (e) => {
+        const f = e.dataTransfer?.files?.[0];
+        if (f) HCB.toast({ title: "Receipt uploaded", body: `${f.name} attached to your records.`, tone: "good" });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Howard Custom Boats — Owner Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html" class="active">Dashboard</a>
+      <a href="service.html">Service</a>
+      <a href="expenses.html">Expenses</a>
+      <a href="location.html">Location</a>
+    </nav>
+
+    <div class="user-chip">
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+      <a href="#" title="Notifications" style="margin-left:6px;color:var(--text-mute);padding:0 10px;">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero: the owner's boat -->
+  <section class="hero" aria-label="Your boat">
+    <div class="hero-inner">
+      <div class="hero-title">
+        <div class="eyebrow">Your Boat</div>
+        <h1 id="boat-name">Hull No. 042 &mdash; &ldquo;Outta Control&rdquo;</h1>
+        <div class="sub" id="boat-sub">28&prime; Howard Custom &middot; Valencia, CA</div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-ghost" href="location.html">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>
+          Locate
+        </a>
+        <a class="btn btn-primary" href="service.html">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>
+          Schedule Service
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- Primary tiles -->
+    <div class="grid">
+      <!-- Fuel -->
+      <div class="card col-4">
+        <h3>Fuel Level</h3>
+        <div class="big"><span id="fuel-pct">78</span><span class="unit">%</span></div>
+        <div class="gauge"><div class="gauge-fill" id="fuel-fill" style="width:0%"></div></div>
+        <div class="foot">
+          <span class="pill good"><span class="dot"></span> Topped off Apr 18</span>
+        </div>
+      </div>
+
+      <!-- Hull hours -->
+      <div class="card col-4">
+        <h3>Hull Hours</h3>
+        <div class="big"><span id="hull-hours">412.6</span><span class="unit">hrs</span></div>
+        <div class="foot">Lifetime runtime &middot; +4.2 hrs last trip</div>
+      </div>
+
+      <!-- Engine hours -->
+      <div class="card col-4">
+        <h3>Engine Hours</h3>
+        <div class="big"><span id="engine-hours">398.1</span><span class="unit">hrs</span></div>
+        <div class="foot">Mercury 450R &middot; Service due in <strong style="color:var(--warn)">11.9 hrs</strong></div>
+      </div>
+
+      <!-- Ambient -->
+      <div class="card col-4">
+        <h3>Ambient Temp</h3>
+        <div class="big"><span id="ambient-temp">68</span><span class="unit">&deg;F</span></div>
+        <div class="foot">
+          <span class="pill good"><span class="dot"></span> Within range (40&ndash;95&deg;F)</span>
+        </div>
+      </div>
+
+      <!-- Next service -->
+      <div class="card col-4">
+        <a href="service.html" style="position:absolute;inset:0;z-index:1;"></a>
+        <h3>Next Service</h3>
+        <div class="big" style="font-size:22px;line-height:1.3;margin-top:6px;">
+          100-hr Engine Inspection
+        </div>
+        <div class="foot">Est. May 4, 2026 &middot; Howard Service &ndash; Valencia</div>
+      </div>
+
+      <!-- Engine status -->
+      <div class="card col-4">
+        <h3>Engine Status</h3>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:4px;">
+          <div class="big" id="engine-state">Healthy</div>
+          <span class="pill good"><span class="dot"></span> No active codes</span>
+        </div>
+        <div class="foot">Last ECU check &middot; 2h ago</div>
+      </div>
+
+      <!-- Location / GPS -->
+      <div class="card map-card col-7" id="location" style="position:relative;">
+        <div class="map" id="dash-map" aria-label="Boat location map"></div>
+        <a href="location.html" class="map-click-shim" aria-label="Open location"></a>
+        <div class="map-overlay">
+          <div>
+            <strong>Stored at Howard Yard</strong>
+            <div style="color:var(--text-mute);font-size:12px;margin-top:2px;">
+              26745 Ruether Ave, Santa Clarita CA &middot; &plusmn;3m
+            </div>
+          </div>
+          <span class="pill good"><span class="dot"></span> In geofence</span>
+        </div>
+      </div>
+
+      <!-- Alerts / notifications -->
+      <div class="card col-5">
+        <h3>Alerts &amp; Reminders</h3>
+        <ul class="list">
+          <li>
+            <div>
+              <div class="label">100-hr engine service</div>
+              <div class="meta em">Due in 11.9 engine hours</div>
+            </div>
+            <span class="pill warn"><span class="dot"></span> Upcoming</span>
+          </li>
+          <li>
+            <div>
+              <div class="label">Lower unit oil</div>
+              <div class="meta">Next: 600 hrs</div>
+            </div>
+            <span class="pill good"><span class="dot"></span> On track</span>
+          </li>
+          <li>
+            <div>
+              <div class="label">Hull wax &amp; detail</div>
+              <div class="meta">Last: Mar 02, 2026</div>
+            </div>
+            <span class="pill good"><span class="dot"></span> On track</span>
+          </li>
+          <li>
+            <div>
+              <div class="label">Registration renewal</div>
+              <div class="meta em">Expires Jun 30, 2026</div>
+            </div>
+            <span class="pill warn"><span class="dot"></span> Action soon</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Quick summary strip -->
+    <div class="section-title">
+      <h2>Quick Look</h2>
+    </div>
+    <div class="grid">
+      <a class="card col-4" href="service.html" style="display:block;color:inherit;">
+        <h3>Service</h3>
+        <div class="big" style="font-size:22px;line-height:1.3;margin-top:4px;">3 visits this year</div>
+        <div class="foot">Last: Apr 02 &middot; Oil &amp; filter change &rarr;</div>
+      </a>
+      <a class="card col-4" href="expenses.html" style="display:block;color:inherit;">
+        <h3>Expenses YTD</h3>
+        <div class="big">$4,820</div>
+        <div class="foot">Service, fuel, storage &rarr;</div>
+      </a>
+      <a class="card col-4" href="location.html" style="display:block;color:inherit;">
+        <h3>Location</h3>
+        <div class="big" style="font-size:22px;line-height:1.3;margin-top:4px;">In geofence</div>
+        <div class="foot">Stored at Howard Yard &middot; view history &rarr;</div>
+      </a>
+    </div>
+  </main>
+
+  <!-- Service reminder toast -->
+  <div class="toast-stack" id="toast-stack"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="app.js"></script>
+  <script>
+    // Small, non-interactive dashboard map — click the shim to drill into /location
+    if (window.L && document.getElementById("dash-map")) {
+      const m = L.map("dash-map", {
+        center: [34.4208, -118.5502],
+        zoom: 14,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+        boxZoom: false, keyboard: false, touchZoom: false, tap: false,
+      });
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        subdomains: "abcd", maxZoom: 19,
+      }).addTo(m);
+      L.circle([34.4208, -118.5502], {
+        radius: 120, color: "#3ddc97", weight: 2,
+        dashArray: "6 6", fillColor: "#3ddc97", fillOpacity: 0.06,
+      }).addTo(m);
+      const pin = L.divIcon({
+        className: "hcb-pin",
+        html: '<span class="pulse"></span><span class="dot"></span>',
+        iconSize: [20, 20], iconAnchor: [10, 10],
+      });
+      L.marker([34.4208, -118.5502], { icon: pin, interactive: false }).addTo(m);
+    }
+  </script>
+</body>
+</html>
