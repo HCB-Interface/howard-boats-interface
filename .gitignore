@@ -1,0 +1,15 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Build / deploy artifacts
+*.zip
+
+# Orphan files from earlier iterations
+login.html
+
+# PDF source of the logo (we serve the PNG/JPG)
+assets/logo.pdf

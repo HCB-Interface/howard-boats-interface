@@ -150,12 +150,12 @@ if (document.getElementById("fuel-fill")) {
   if (tbody) {
     tbody.innerHTML = HCB.owner.serviceLog.map(r => `
       <tr>
-        <td>${r.date}</td>
-        <td>${r.work}</td>
-        <td>${r.shop}</td>
-        <td>${r.hours}</td>
-        <td>${r.cost}</td>
-        <td><span class="pill ${r.status.tone}"><span class="dot"></span> ${r.status.label}</span></td>
+        <td data-label="Date">${r.date}</td>
+        <td data-label="Work">${r.work}</td>
+        <td data-label="Shop">${r.shop}</td>
+        <td data-label="Hours">${r.hours}</td>
+        <td data-label="Cost">${r.cost}</td>
+        <td data-label="Status"><span class="pill ${r.status.tone}"><span class="dot"></span> ${r.status.label}</span></td>
       </tr>`).join("");
   }
   const intervals = document.getElementById("service-intervals");
@@ -183,10 +183,10 @@ if (document.getElementById("fuel-fill")) {
   if (tx) {
     tx.innerHTML = HCB.owner.transactions.map(t => `
       <tr>
-        <td>${t.date}</td>
-        <td><span class="pill ${t.type === 'Service' ? 'warn' : t.type === 'Fuel' ? 'good' : 'good'}"><span class="dot"></span> ${t.type}</span></td>
-        <td>${t.vendor}</td>
-        <td style="text-align:right;">${t.amount}</td>
+        <td data-label="Date">${t.date}</td>
+        <td data-label="Type"><span class="pill ${t.type === 'Service' ? 'warn' : t.type === 'Fuel' ? 'good' : 'good'}"><span class="dot"></span> ${t.type}</span></td>
+        <td data-label="Vendor">${t.vendor}</td>
+        <td data-label="Amount" class="num">${t.amount}</td>
       </tr>`).join("");
   }
   // Pie/donut chart
