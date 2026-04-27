@@ -243,3 +243,349 @@ if (document.getElementById("fuel-fill")) {
       </li>`).join("");
   }
 })();
+
+/* ======================================================================
+   Engine telemetry — Mercury (Tier 2: SmartCraft) & Teague (Tier 3: Howard
+   Sensor Package). Mock data only; in production these would be the JSON
+   payloads coming back from the on-boat gateway.
+   ====================================================================== */
+
+HCB.mercury = {
+  package: "Twin Mercury Racing 400R",
+  rigging: "SmartCraft via NMEA 2000",
+  status: "Engines secured",
+  cellular: "LTE — -78 dBm",
+  wifi: "Howard Yard",
+  lastSync: "4 min ago",
+  fuelLevelPct: 78,
+  fuelGal: 91,
+  engines: [
+    { label: "Port",      hours: 188.4, lastRunHours: 4.1,
+      coolantF: 76, oilPsi: 0, voltage: 12.7, trim: 0,
+      throttlePct: 0, rpm: 0, maxRpm: 7000 },
+    { label: "Starboard", hours: 187.9, lastRunHours: 4.1,
+      coolantF: 78, oilPsi: 0, voltage: 12.6, trim: 0,
+      throttlePct: 0, rpm: 0, maxRpm: 7000 },
+  ],
+  lastRun: {
+    date: "Apr 19, 2026",
+    duration: "4h 10m",
+    distanceNm: 38.4,
+    timeOnPlane: "2h 50m",
+    fuelBurnedGal: 41,
+    avgGph: 9.8,
+    peakRpmPort: 5840,
+    peakRpmStbd: 5860,
+    peakCoolantPortF: 162,
+    peakCoolantStbdF: 164,
+    waterTempF: 71,
+  },
+  diagnostics: [
+    { code: "OK",    desc: "No active fault codes — Port",      tone: "good" },
+    { code: "OK",    desc: "No active fault codes — Starboard", tone: "good" },
+    { code: "P0500", desc: "Historic · cleared Mar 02 — VSS dropout while trailering", tone: "good" },
+  ],
+};
+
+HCB.teague = {
+  package: "Teague Custom Marine 1050",
+  rigging: "Howard Sensor Package — NMEA 2000 + analog",
+  status: "Stored — engine cold",
+  cellular: "LTE — -82 dBm",
+  wifi: "Howard Yard",
+  lastSync: "6 min ago",
+  hours: 162.3,
+  fuelLevelPct: 64,
+  rpm: 0,
+  oilPsi: 0,
+  coolantF: 74,
+  exhaustPortF: 96,
+  exhaustStbdF: 94,
+  startV: 12.7,
+  houseV: 12.5,
+  bilge: "Dry",
+  ambientF: 68,
+  /* 30 most-recent idle oil-pressure readings (psi) used for the trend chart.
+     A drift here is the leading indicator of bearing or pump trouble. */
+  oilPsiIdleHistory: [
+    66, 65, 66, 65, 64, 65, 66, 65, 65, 64,
+    65, 65, 64, 65, 65, 64, 64, 65, 65, 64,
+    64, 65, 64, 64, 65, 64, 65, 64, 64, 65,
+  ],
+  lastRun: {
+    date: "Apr 12, 2026",
+    duration: "2h 28m",
+    distanceNm: 22.8,
+    peakRpm: 5240,
+    peakOilPsi: 71,
+    peakCoolantF: 178,
+    peakExhaustPortF: 612,
+    peakExhaustStbdF: 608,
+    fuelBurnedGal: 36,
+  },
+};
+
+/* ---------- Tachometer SVG helper ----------
+   Returns markup for a 220-degree sweep gauge with green/amber/red bands
+   and a needle at the supplied rpm. */
+HCB.tachSvg = function (rpm, maxRpm) {
+  const cx = 100, cy = 100, r = 78;
+  const startDeg = 150, endDeg = 390; // sweep 240deg
+  const toXY = (deg, rad = r) => {
+    const a = (deg - 90) * Math.PI / 180;
+    return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)];
+  };
+  const arcPath = (a, b, rr = r) => {
+    const [x0, y0] = toXY(a, rr), [x1, y1] = toXY(b, rr);
+    const large = (b - a) > 180 ? 1 : 0;
+    return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${rr} ${rr} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+  };
+  const greenEnd = startDeg + (5500 / maxRpm) * (endDeg - startDeg);
+  const amberEnd = startDeg + (6500 / maxRpm) * (endDeg - startDeg);
+  // Tick marks every 1000 rpm
+  let ticks = "";
+  for (let v = 0; v <= maxRpm; v += 1000) {
+    const deg = startDeg + (v / maxRpm) * (endDeg - startDeg);
+    const [x0, y0] = toXY(deg, r - 4);
+    const [x1, y1] = toXY(deg, r - (v % 2000 === 0 ? 14 : 9));
+    ticks += `<line x1="${x0.toFixed(2)}" y1="${y0.toFixed(2)}" x2="${x1.toFixed(2)}" y2="${y1.toFixed(2)}" stroke="#3b4753" stroke-width="${v % 2000 === 0 ? 2 : 1.2}"/>`;
+    if (v % 2000 === 0) {
+      const [tx, ty] = toXY(deg, r - 24);
+      ticks += `<text x="${tx.toFixed(2)}" y="${(ty + 4).toFixed(2)}" text-anchor="middle" fill="#6b7785" font-size="10" font-family="Inter, sans-serif">${v / 1000}</text>`;
+    }
+  }
+  // Needle
+  const needleDeg = startDeg + (Math.min(rpm, maxRpm) / maxRpm) * (endDeg - startDeg);
+  const [nx, ny] = toXY(needleDeg, r - 8);
+  const needle = rpm > 0
+    ? `<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(2)}" y2="${ny.toFixed(2)}" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>`
+    : "";
+  return `
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="${arcPath(startDeg, endDeg)}" stroke="#1b232b" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="${arcPath(startDeg, greenEnd)}" stroke="#3ddc97" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85"/>
+      <path d="${arcPath(greenEnd,  amberEnd)}" stroke="#ffb648" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85"/>
+      <path d="${arcPath(amberEnd,  endDeg)}"  stroke="#ff5a5f" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85"/>
+      ${ticks}
+      ${needle}
+      <circle cx="${cx}" cy="${cy}" r="6" fill="#0e1318" stroke="#3b4753" stroke-width="2"/>
+    </svg>`;
+};
+
+/* ---------- Tiny line/area trend chart ---------- */
+HCB.trendSvg = function (points, opts = {}) {
+  const w = 600, h = 160, pad = 14;
+  const min = Math.min.apply(null, points) - 4;
+  const max = Math.max.apply(null, points) + 4;
+  const span = max - min || 1;
+  const stepX = (w - pad * 2) / (points.length - 1);
+  const xy = points.map((p, i) => [
+    pad + i * stepX,
+    h - pad - ((p - min) / span) * (h - pad * 2),
+  ]);
+  const linePath = xy.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const areaPath = linePath + ` L ${xy[xy.length - 1][0].toFixed(1)} ${h - pad} L ${pad} ${h - pad} Z`;
+  // y-axis baseline labels
+  const baseline = ((opts.baseline ?? null));
+  const baselineY = baseline != null
+    ? (h - pad - ((baseline - min) / span) * (h - pad * 2)).toFixed(1)
+    : null;
+  // Acceptable band shading
+  const okLo = opts.okLo, okHi = opts.okHi;
+  let band = "";
+  if (okLo != null && okHi != null) {
+    const yLo = (h - pad - ((okLo - min) / span) * (h - pad * 2)).toFixed(1);
+    const yHi = (h - pad - ((okHi - min) / span) * (h - pad * 2)).toFixed(1);
+    band = `<rect x="${pad}" y="${yHi}" width="${w - pad * 2}" height="${(yLo - yHi).toFixed(1)}" fill="#3ddc97" opacity="0.06"/>`;
+  }
+  return `
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      ${band}
+      ${baselineY ? `<line x1="${pad}" y1="${baselineY}" x2="${w - pad}" y2="${baselineY}" stroke="#3ddc97" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>` : ""}
+      <path d="${areaPath}" fill="var(--accent)" opacity="0.12"/>
+      <path d="${linePath}"  fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${xy.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="var(--accent)"/>`).join("")}
+      <text x="${pad}" y="${pad + 2}" fill="#6b7785" font-size="10" font-family="Inter, sans-serif">${max.toFixed(0)} ${opts.unit || ""}</text>
+      <text x="${pad}" y="${h - pad + 11}" fill="#6b7785" font-size="10" font-family="Inter, sans-serif">${min.toFixed(0)} ${opts.unit || ""}</text>
+    </svg>`;
+};
+
+/* ---------- Mercury page render ---------- */
+(function renderMercury() {
+  const root = document.getElementById("mercury-root");
+  if (!root) return;
+  const m = HCB.mercury;
+
+  // Status strip
+  const strip = document.getElementById("mercury-status-strip");
+  if (strip) {
+    strip.innerHTML = `
+      <div class="pip"><span class="lbl">Engines</span><span class="val good">${m.status}</span></div>
+      <div class="pip"><span class="lbl">Last Sync</span><span class="val">${m.lastSync}</span></div>
+      <div class="pip"><span class="lbl">Cellular</span><span class="val">${m.cellular}</span></div>
+      <div class="pip"><span class="lbl">Wi-Fi</span><span class="val good">${m.wifi}</span></div>`;
+  }
+
+  // Engine cards
+  const grid = document.getElementById("mercury-engine-grid");
+  if (grid) {
+    grid.innerHTML = m.engines.map((e, i) => `
+      <div class="engine-card col-6">
+        <div class="engine-card-head">
+          <div class="name">${i === 0 ? "PORT" : "STARBOARD"} · <strong>Mercury Racing 400R</strong></div>
+          <span class="pill good"><span class="dot"></span> ${e.rpm > 0 ? "Running" : "Standby"}</span>
+        </div>
+        <div class="tach">
+          ${HCB.tachSvg(e.rpm, e.maxRpm)}
+          <div class="tach-readout">
+            <span class="num">${e.rpm.toLocaleString()}</span>
+            <span class="unit">RPM</span>
+          </div>
+        </div>
+        <div class="sub-tiles">
+          <div class="sub-tile"><div class="lbl">Engine Hours</div><div class="val">${e.hours.toFixed(1)}<span class="unit">hrs</span></div><div class="meta">+${e.lastRunHours.toFixed(1)} hrs last trip</div></div>
+          <div class="sub-tile"><div class="lbl">Coolant</div><div class="val">${e.coolantF}<span class="unit">°F</span></div><div class="meta">Cold start ready</div></div>
+          <div class="sub-tile"><div class="lbl">Oil Pressure</div><div class="val">${e.oilPsi}<span class="unit">psi</span></div><div class="meta">Normal at idle: 60–75 psi</div></div>
+          <div class="sub-tile"><div class="lbl">Battery</div><div class="val">${e.voltage.toFixed(1)}<span class="unit">V</span></div><div class="meta">Trim ${e.trim}° · throttle ${e.throttlePct}%</div></div>
+        </div>
+      </div>`).join("");
+  }
+
+  // Last run summary
+  const lr = document.getElementById("mercury-last-run");
+  if (lr) {
+    const r = m.lastRun;
+    lr.innerHTML = `
+      <div class="run-stat"><div class="lbl">Date</div><div class="val">${r.date.replace(", 2026", "")}</div></div>
+      <div class="run-stat"><div class="lbl">Duration</div><div class="val">${r.duration}</div></div>
+      <div class="run-stat"><div class="lbl">Distance</div><div class="val">${r.distanceNm}<span class="unit">nm</span></div></div>
+      <div class="run-stat"><div class="lbl">Time On Plane</div><div class="val">${r.timeOnPlane}</div></div>
+      <div class="run-stat"><div class="lbl">Fuel Burned</div><div class="val">${r.fuelBurnedGal}<span class="unit">gal</span></div></div>
+      <div class="run-stat"><div class="lbl">Avg Burn</div><div class="val">${r.avgGph}<span class="unit">gph</span></div></div>
+      <div class="run-stat"><div class="lbl">Peak RPM · P</div><div class="val">${r.peakRpmPort.toLocaleString()}</div></div>
+      <div class="run-stat"><div class="lbl">Peak RPM · S</div><div class="val">${r.peakRpmStbd.toLocaleString()}</div></div>
+      <div class="run-stat"><div class="lbl">Max Coolant · P</div><div class="val">${r.peakCoolantPortF}<span class="unit">°F</span></div></div>
+      <div class="run-stat"><div class="lbl">Max Coolant · S</div><div class="val">${r.peakCoolantStbdF}<span class="unit">°F</span></div></div>
+      <div class="run-stat"><div class="lbl">Water Temp</div><div class="val">${r.waterTempF}<span class="unit">°F</span></div></div>
+      <div class="run-stat"><div class="lbl">Tank After</div><div class="val">${m.fuelLevelPct}<span class="unit">%</span></div></div>`;
+  }
+
+  // Fuel card
+  const fuelPct = document.getElementById("mercury-fuel-pct");
+  const fuelFill = document.getElementById("mercury-fuel-fill");
+  if (fuelPct && fuelFill) {
+    fuelPct.textContent = m.fuelLevelPct;
+    requestAnimationFrame(() => { fuelFill.style.width = m.fuelLevelPct + "%"; });
+  }
+
+  // DTC list
+  const dtc = document.getElementById("mercury-dtc");
+  if (dtc) {
+    dtc.innerHTML = m.diagnostics.map(d => `
+      <li>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="code">${d.code}</span>
+          <span>${d.desc}</span>
+        </div>
+        <span class="pill ${d.tone}"><span class="dot"></span> ${d.tone === "good" ? "Clear" : "Active"}</span>
+      </li>`).join("");
+  }
+})();
+
+/* ---------- Teague page render ---------- */
+(function renderTeague() {
+  const root = document.getElementById("teague-root");
+  if (!root) return;
+  const t = HCB.teague;
+
+  // Status strip
+  const strip = document.getElementById("teague-status-strip");
+  if (strip) {
+    strip.innerHTML = `
+      <div class="pip"><span class="lbl">Engine</span><span class="val good">${t.status}</span></div>
+      <div class="pip"><span class="lbl">Last Sync</span><span class="val">${t.lastSync}</span></div>
+      <div class="pip"><span class="lbl">Cellular</span><span class="val">${t.cellular}</span></div>
+      <div class="pip"><span class="lbl">Wi-Fi</span><span class="val good">${t.wifi}</span></div>`;
+  }
+
+  // Sensor grid
+  const grid = document.getElementById("teague-sensors");
+  if (grid) {
+    grid.innerHTML = `
+      <div class="sensor">
+        <span class="trend down">↓ stable</span>
+        <div class="lbl">Oil Pressure</div>
+        <div class="val">${t.oilPsi}<span class="unit">psi</span></div>
+        <div class="meta">Idle baseline 64 psi · trend 30d steady</div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Coolant Temp</div>
+        <div class="val">${t.coolantF}<span class="unit">°F</span></div>
+        <div class="meta">Cold start ready</div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Exhaust · Port</div>
+        <div class="val">${t.exhaustPortF}<span class="unit">°F</span></div>
+        <div class="meta">Resting · last peak 612°F</div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Exhaust · Stbd</div>
+        <div class="val">${t.exhaustStbdF}<span class="unit">°F</span></div>
+        <div class="meta">Resting · last peak 608°F</div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Engine RPM</div>
+        <div class="val">${t.rpm}<span class="unit">rpm</span></div>
+        <div class="meta">Read off tach signal</div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Fuel Level</div>
+        <div class="val">${t.fuelLevelPct}<span class="unit">%</span></div>
+        <div class="gauge" style="margin-top:10px;"><div class="gauge-fill" id="teague-fuel-fill" style="width:0%"></div></div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Battery Bank</div>
+        <div class="batt-bank" style="margin-top:8px;">
+          <div class="batt-cell"><span class="role">Start</span><span class="v">${t.startV.toFixed(1)} V</span></div>
+          <div class="batt-cell"><span class="role">House</span><span class="v">${t.houseV.toFixed(1)} V</span></div>
+        </div>
+      </div>
+      <div class="sensor">
+        <div class="lbl">Bilge · Ambient</div>
+        <div class="val">${t.bilge}</div>
+        <div class="meta">Bilge dry · ${t.ambientF}°F cabin</div>
+      </div>`;
+    requestAnimationFrame(() => {
+      const fuel = document.getElementById("teague-fuel-fill");
+      if (fuel) fuel.style.width = t.fuelLevelPct + "%";
+    });
+  }
+
+  // Engine hours card
+  const hrs = document.getElementById("teague-hours");
+  if (hrs) hrs.textContent = t.hours.toFixed(1);
+
+  // Trend chart — idle oil pressure over the last 30 entries
+  const tc = document.getElementById("teague-trend");
+  if (tc) {
+    tc.innerHTML = HCB.trendSvg(t.oilPsiIdleHistory, {
+      okLo: 60, okHi: 75, baseline: 64, unit: "psi",
+    });
+  }
+
+  // Last run summary
+  const lr = document.getElementById("teague-last-run");
+  if (lr) {
+    const r = t.lastRun;
+    lr.innerHTML = `
+      <div class="run-stat"><div class="lbl">Date</div><div class="val">${r.date.replace(", 2026", "")}</div></div>
+      <div class="run-stat"><div class="lbl">Duration</div><div class="val">${r.duration}</div></div>
+      <div class="run-stat"><div class="lbl">Distance</div><div class="val">${r.distanceNm}<span class="unit">nm</span></div></div>
+      <div class="run-stat"><div class="lbl">Peak RPM</div><div class="val">${r.peakRpm.toLocaleString()}</div></div>
+      <div class="run-stat"><div class="lbl">Peak Oil</div><div class="val">${r.peakOilPsi}<span class="unit">psi</span></div></div>
+      <div class="run-stat"><div class="lbl">Max Coolant</div><div class="val">${r.peakCoolantF}<span class="unit">°F</span></div></div>
+      <div class="run-stat"><div class="lbl">Exhaust · P</div><div class="val">${r.peakExhaustPortF}<span class="unit">°F</span></div></div>
+      <div class="run-stat"><div class="lbl">Exhaust · S</div><div class="val">${r.peakExhaustStbdF}<span class="unit">°F</span></div></div>
+      <div class="run-stat"><div class="lbl">Fuel Burned</div><div class="val">${r.fuelBurnedGal}<span class="unit">gal</span></div></div>`;
+  }
+})();

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mercury Telemetry — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="mercury.html" class="active">Mercury</a>
+      <a href="teague.html">Teague</a>
+      <a href="service.html">Service</a>
+      <a href="expenses.html">Expenses</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+      <a href="#" title="Notifications" style="margin-left:6px;color:var(--text-mute);padding:0 10px;">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <span class="engine-badge">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M5 11h14M7 7h10M9 15h6M11 19h2"/></svg>
+      Mercury Racing
+    </span>
+    <h1 style="margin-top:10px;">Engine Telemetry</h1>
+    <div class="sub">Twin Mercury Racing 400R &middot; Hull 042 &ldquo;Outta Control&rdquo;</div>
+  </section>
+
+  <div class="tier-banner">
+    <span class="tier-pill">Tier 2 &middot; SmartCraft Direct</span>
+    <div>
+      <strong>Native Mercury data</strong> over NMEA 2000 &mdash;
+      RPM, coolant, oil pressure, fuel flow, throttle, trim, and ECU fault codes
+      are read directly from each engine&rsquo;s SmartCraft bus.
+    </div>
+  </div>
+
+  <main class="container" id="mercury-root">
+    <div class="status-strip" id="mercury-status-strip"></div>
+
+    <div class="grid" id="mercury-engine-grid"></div>
+
+    <div class="section-title">
+      <h2>Last Run &middot; Apr 19, 2026</h2>
+      <a href="service.html">View service history &rarr;</a>
+    </div>
+    <div class="card">
+      <div class="run-summary" id="mercury-last-run"></div>
+    </div>
+
+    <div class="section-title"><h2>Fuel &amp; Diagnostics</h2></div>
+    <div class="grid">
+      <div class="card col-5">
+        <h3>Fuel Level</h3>
+        <div class="big"><span id="mercury-fuel-pct">78</span><span class="unit">%</span></div>
+        <div class="gauge"><div class="gauge-fill" id="mercury-fuel-fill" style="width:0%"></div></div>
+        <div class="foot">
+          <span class="pill good"><span class="dot"></span> ~91 gal &middot; topped off Apr 18</span>
+        </div>
+      </div>
+      <div class="card col-7">
+        <h3>Diagnostics &middot; ECU Fault Codes</h3>
+        <ul class="dtc-list" id="mercury-dtc"></ul>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Why Mercury Powered Boats Get the Full Stack</h2></div>
+    <div class="tier-explainer">
+      <div>
+        <h3>Tier 2 &middot; SmartCraft Direct</h3>
+        <div class="head">The data is already on the boat &mdash; we just route it.</div>
+        <p>
+          Every Mercury Racing 400R, 500R, and 600 SCI ships with SmartCraft &mdash;
+          Mercury&rsquo;s engine data protocol &mdash; bridging cleanly onto the NMEA 2000
+          backbone Howard already runs. A small cellular gateway aggregates the bus,
+          buffers when out of signal, and pushes to the dashboard.
+        </p>
+        <p>
+          For the customer that means richer data than the helm shows.
+          For Howard&rsquo;s service team it means fault codes and hour-meters land in
+          the office before the boat&rsquo;s back on the trailer.
+        </p>
+      </div>
+      <div>
+        <ul class="feature-list">
+          <li><span class="check">&#10003;</span> Per-engine RPM, coolant, oil pressure, fuel flow at 1&nbsp;Hz</li>
+          <li><span class="check">&#10003;</span> Active and stored ECU fault codes (P-codes)</li>
+          <li><span class="check">&#10003;</span> Throttle position, trim, alarms, and Smart Tow state</li>
+          <li><span class="check">&#10003;</span> Fuel-burn integration over time &amp; range estimates</li>
+          <li><span class="check">&#10003;</span> Predictive service: 100-hr / 300-hr alerts before the chime</li>
+          <li><span class="check">&#10003;</span> Same stack ships day-one on the next 288 with twin 500Rs</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Primary mobile">
+    <div class="mobile-nav-row six">
+      <a href="index.html">
+        <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>
+        Home
+      </a>
+      <a href="mercury.html" class="active">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Mercury
+      </a>
+      <a href="teague.html">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+        Teague
+      </a>
+      <a href="service.html">
+        <svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>
+        Service
+      </a>
+      <a href="expenses.html">
+        <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Expenses
+      </a>
+      <a href="location.html">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>
+        Location
+      </a>
+    </div>
+  </nav>
+
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="app.js"></script>
+</body>
+</html>

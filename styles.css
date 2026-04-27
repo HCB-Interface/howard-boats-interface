@@ -941,3 +941,429 @@ button { font-family: inherit; }
   .page-title { padding: 24px 16px 0; }
   .page-title h1 { font-size: 24px; }
 }
+
+/* ---------- Engine dashboard pages (Mercury / Teague) ---------- */
+
+/* Page-level theme override (Teague = amber accent) */
+body.theme-teague {
+  --accent: #ff8a3d;
+  --accent-strong: #d96a18;
+}
+
+/* Tier banner sits below the page title and explains the integration tier */
+.tier-banner {
+  max-width: 1280px;
+  margin: 18px auto 0;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(180deg, var(--bg-elev-1) 0%, #0e1318 100%);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.tier-banner .tier-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(63,182,255,0.12);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+body.theme-teague .tier-banner .tier-pill {
+  background: rgba(255,138,61,0.14);
+  color: var(--accent);
+}
+.tier-banner strong { color: var(--text); font-weight: 600; }
+@media (max-width: 640px) {
+  .tier-banner { margin: 14px 14px 0; padding: 12px 14px; flex-wrap: wrap; gap: 8px; font-size: 12px; }
+}
+
+/* Status strip shown above the engine cards */
+.status-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.status-strip .pip {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.status-strip .pip .lbl {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.status-strip .pip .val {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.status-strip .pip .val.good { color: var(--good); }
+.status-strip .pip .val.warn { color: var(--warn); }
+@media (max-width: 900px) {
+  .status-strip { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Engine card — used for per-engine view (Mercury) and for grouped Teague sensors */
+.engine-card {
+  background: linear-gradient(180deg, var(--bg-elev-1) 0%, #0e1318 100%);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.engine-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.engine-card-head .name {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 500;
+}
+.engine-card-head .name strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Tachometer SVG */
+.tach {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 10px;
+}
+.tach svg { display: block; max-width: 240px; width: 100%; height: auto; }
+.tach-readout {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.tach-readout .num {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.tach-readout .unit {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+
+/* Sub-tile grid inside engine card */
+.sub-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.sub-tile {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.sub-tile .lbl {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.sub-tile .val {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 4px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.sub-tile .val .unit {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: 3px;
+  font-weight: 500;
+}
+.sub-tile .meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+/* Run summary strip — last trip highlights */
+.run-summary {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  padding: 6px 4px;
+}
+.run-stat .lbl {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.run-stat .val {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.run-stat .val .unit {
+  font-size: 10px; color: var(--text-dim); margin-left: 3px; font-weight: 500;
+}
+@media (max-width: 900px) {
+  .run-summary { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .run-summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Sensor grid (Teague) */
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.sensor {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  position: relative;
+}
+.sensor .lbl {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.sensor .val {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.sensor .val .unit {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: 3px;
+  font-weight: 500;
+}
+.sensor .meta {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+.sensor .trend {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-mute);
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.sensor .trend.up   { color: var(--warn); }
+.sensor .trend.down { color: var(--good); }
+@media (max-width: 1100px) {
+  .sensor-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Battery bank: dual cells */
+.batt-bank {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.batt-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg-elev-3);
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+}
+.batt-cell .role {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+.batt-cell .v {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Diagnostics list (DTC) */
+.dtc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dtc-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 4px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+}
+.dtc-list li:first-child { border-top: 0; }
+.dtc-list .code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text-mute);
+  background: var(--bg-elev-3);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Trend mini-chart container */
+.trend-chart {
+  width: 100%;
+  height: 160px;
+  position: relative;
+}
+.trend-chart svg { width: 100%; height: 100%; display: block; }
+
+/* Why-this-tier explainer panel */
+.tier-explainer {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+  padding: 22px;
+  background:
+    radial-gradient(800px 280px at 0% 0%, rgba(63,182,255,0.06), transparent 60%),
+    linear-gradient(180deg, var(--bg-elev-1) 0%, #0e1318 100%);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+}
+body.theme-teague .tier-explainer {
+  background:
+    radial-gradient(800px 280px at 0% 0%, rgba(255,138,61,0.07), transparent 60%),
+    linear-gradient(180deg, var(--bg-elev-1) 0%, #0e1318 100%);
+}
+.tier-explainer h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  font-weight: 500;
+}
+.tier-explainer .head {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 10px;
+  color: var(--text);
+}
+.tier-explainer p {
+  margin: 0 0 10px;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.tier-explainer .feature-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tier-explainer .feature-list li {
+  padding: 8px 0;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text);
+}
+.tier-explainer .feature-list li:first-child { border-top: 0; }
+.tier-explainer .feature-list li .check {
+  flex: 0 0 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(63,182,255,0.16);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  margin-top: 1px;
+}
+body.theme-teague .tier-explainer .feature-list li .check {
+  background: rgba(255,138,61,0.18);
+  color: var(--accent);
+}
+@media (max-width: 900px) {
+  .tier-explainer { grid-template-columns: 1fr; }
+}
+
+/* Brand badge in engine page hero */
+.engine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  background: rgba(63,182,255,0.10);
+  border: 1px solid rgba(63,182,255,0.25);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+body.theme-teague .engine-badge {
+  background: rgba(255,138,61,0.10);
+  border-color: rgba(255,138,61,0.30);
+}
+
+/* Mobile bottom-nav: when there are 6 tabs we shrink them */
+.mobile-nav-row.six { grid-template-columns: repeat(6, 1fr); }
+.mobile-nav-row.six a { font-size: 9px; }
+.mobile-nav-row.six a svg { width: 18px; height: 18px; }
