@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fleet · Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-staff">
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="mercury.html">Mercury</a>
+      <a href="teague.html">Teague</a>
+      <a href="service.html">Service</a>
+      <a href="expenses.html">Expenses</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <a href="index.html" class="role-toggle" title="Switch to owner view">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/></svg>
+        <span>Staff</span>
+      </a>
+      <a href="settings.html" title="Settings" style="color:var(--text-mute);padding:0 8px;">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </a>
+      <div class="avatar staff-avatar">HS</div>
+      <span>Howard Staff</span>
+    </div>
+  </header>
+
+  <section class="page-title staff-title">
+    <span class="engine-badge staff-badge">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+      Howard Staff View
+    </span>
+    <h1 style="margin-top:10px;">Connected Fleet</h1>
+    <div class="sub">Every Howard hull Howard has built and connected &middot; live status, last sync, faults, and predictive service</div>
+  </section>
+
+  <main class="container" id="fleet-root">
+
+    <div class="kpi-row" id="fleet-kpis"></div>
+
+    <div class="card fleet-controls">
+      <div class="filter-strip">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" class="search-ico"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="fleet-search" type="text" placeholder="Search hull, owner, location…" />
+        </div>
+        <div class="chip-group" aria-label="Engine filter">
+          <span class="chip-label">Engine</span>
+          <button class="chip active" data-fleet-engine="All">All</button>
+          <button class="chip" data-fleet-engine="600 SCI">600 SCI</button>
+          <button class="chip" data-fleet-engine="400R">Twin 400R</button>
+          <button class="chip" data-fleet-engine="500R">Twin 500R</button>
+          <button class="chip" data-fleet-engine="Teague">Teague 1050</button>
+        </div>
+        <div class="chip-group" aria-label="Status filter">
+          <span class="chip-label">Status</span>
+          <button class="chip active" data-fleet-status="All">All</button>
+          <button class="chip" data-fleet-status="Stored">Stored</button>
+          <button class="chip" data-fleet-status="Running">Running</button>
+          <button class="chip" data-fleet-status="Trailered">Trailered</button>
+          <button class="chip" data-fleet-status="In Service">In Service</button>
+          <button class="chip" data-fleet-status="Offline">Offline</button>
+        </div>
+      </div>
+      <div class="fleet-count" id="fleet-count">— hulls</div>
+    </div>
+
+    <div class="card fleet-table-wrap">
+      <table class="fleet-table">
+        <thead>
+          <tr>
+            <th data-fleet-sort="hull">Hull</th>
+            <th>Boat &middot; Owner</th>
+            <th data-fleet-sort="year" class="hide-sm">Year</th>
+            <th>Engines</th>
+            <th data-fleet-sort="hours" class="num">Hours</th>
+            <th data-fleet-sort="lastSyncMin">Last Sync</th>
+            <th>Status</th>
+            <th>Faults</th>
+            <th data-fleet-sort="serviceInHrs">Service Due</th>
+            <th class="hide-sm">Last Location</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="fleet-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="staff-callout">
+      <h3>What this view enables Howard to do</h3>
+      <ul class="feature-list two-col">
+        <li><span class="check">&#10003;</span> Proactively call owners with engines approaching service intervals — before they think to ask</li>
+        <li><span class="check">&#10003;</span> Spot active fault codes across the fleet and reach out before warranty escalations</li>
+        <li><span class="check">&#10003;</span> Identify stale hulls (offline 30+ days) for re-engagement and resale-lead generation</li>
+        <li><span class="check">&#10003;</span> Track engine-package adoption (400R vs 500R vs Teague) to inform production planning</li>
+        <li><span class="check">&#10003;</span> Open any owner&rsquo;s dashboard with one click for support and walkthrough calls</li>
+        <li><span class="check">&#10003;</span> Build a recurring-revenue connected-service tier on top of the install</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <nav class="mobile-nav" aria-label="Primary mobile">
+    <div class="mobile-nav-row six">
+      <a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="mercury.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Mercury</a>
+      <a href="teague.html"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Teague</a>
+      <a href="service.html"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>Service</a>
+      <a href="expenses.html"><svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Expenses</a>
+      <a href="location.html"><svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>Location</a>
+    </div>
+  </nav>
+
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="app.js"></script>
+</body>
+</html>

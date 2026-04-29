@@ -27,6 +27,13 @@
       <a href="location.html">Location</a>
     </nav>
     <div class="user-chip">
+      <a href="fleet.html" class="role-toggle" title="Howard staff fleet view">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+        <span>Staff</span>
+      </a>
+      <a href="settings.html" title="Settings" style="color:var(--text-mute);padding:0 8px;">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </a>
       <div class="avatar" id="avatar-initials">JB</div>
       <span id="user-name">Jake Brunsell</span>
       <a href="#" title="Notifications" style="margin-left:6px;color:var(--text-mute);padding:0 10px;">
@@ -40,7 +47,7 @@
       <svg class="ico" viewBox="0 0 24 24"><path d="M5 11h14M7 7h10M9 15h6M11 19h2"/></svg>
       Mercury Racing
     </span>
-    <h1 style="margin-top:10px;">Engine Telemetry</h1>
+    <h1 style="margin-top:10px;">Engine Status</h1>
     <div class="sub">Twin Mercury Racing 400R &middot; Hull 042 &ldquo;Outta Control&rdquo;</div>
   </section>
 
@@ -81,6 +88,44 @@
         <ul class="dtc-list" id="mercury-dtc"></ul>
       </div>
     </div>
+
+    <div class="section-title">
+      <h2>Last Run Profile &middot; Apr 19</h2>
+      <span style="font-size:12px;color:var(--text-mute);">Engine spent most of the run in the cruise band</span>
+    </div>
+    <div class="grid">
+      <div class="card col-7">
+        <h3>RPM Time-in-Band</h3>
+        <div id="mercury-tib" style="margin-top:10px;"></div>
+      </div>
+      <div class="card col-5">
+        <h3>Coolant Sweep</h3>
+        <div class="profile-strip">
+          <div class="head"><span>Cold start</span><span>Run</span><span>Cool down</span></div>
+          <div class="profile-chart" id="mercury-coolant-profile"></div>
+          <div class="foot">Stayed inside the 156–164°F operating band — clean run.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <h2>Predictive Service</h2>
+      <a href="service.html">Open service log &rarr;</a>
+    </div>
+    <div class="card">
+      <div id="mercury-service"></div>
+    </div>
+
+    <div class="section-title">
+      <h2>Recent Trips</h2>
+      <span style="font-size:12px;color:var(--text-mute);">Last 5 runs</span>
+    </div>
+    <div class="card">
+      <div id="mercury-trips"></div>
+    </div>
+
+    <div class="section-title"><h2>Storage &amp; Power</h2></div>
+    <div id="mercury-storage"></div>
 
     <div class="section-title"><h2>Why Mercury Powered Boats Get the Full Stack</h2></div>
     <div class="tier-explainer">

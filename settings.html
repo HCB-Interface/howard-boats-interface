@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Settings · Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="mercury.html">Mercury</a>
+      <a href="teague.html">Teague</a>
+      <a href="service.html">Service</a>
+      <a href="expenses.html">Expenses</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <a href="fleet.html" class="role-toggle" title="Howard staff fleet view">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+        <span>Staff</span>
+      </a>
+      <a href="settings.html" title="Settings" class="active-gear" style="color:var(--accent);padding:0 8px;">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </a>
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <span class="engine-badge">
+      <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      Settings
+    </span>
+    <h1 style="margin-top:10px;">Settings</h1>
+    <div class="sub">Boat connectivity, account, and notification preferences</div>
+  </section>
+
+  <main class="container settings-shell" id="settings-root">
+
+    <aside class="settings-side">
+      <a href="#connectivity" class="active">Connectivity</a>
+      <a href="#account">Account</a>
+      <a href="#notifications">Notifications</a>
+      <a href="#privacy">Privacy &amp; Sharing</a>
+      <a href="#about">About this Boat</a>
+    </aside>
+
+    <section class="settings-main">
+
+      <div id="connectivity">
+        <h2>Connectivity</h2>
+        <p class="sub-text">Your Howard Gateway can transmit over either WiFi or cellular. Add the WiFi networks where the boat lives, and the gateway will use them automatically when in range &mdash; falling back to cellular only when none are available.</p>
+
+        <div class="card">
+          <h3>Current uplink</h3>
+          <div id="conn-current"></div>
+        </div>
+
+        <div class="card">
+          <div class="net-head">
+            <h3>Saved WiFi networks</h3>
+            <span class="net-help">Used in priority order. Drag to reorder (in v2).</span>
+          </div>
+          <div id="conn-networks"></div>
+        </div>
+
+        <div class="card">
+          <h3>Add a network</h3>
+          <form id="net-add-form" class="net-add-form" autocomplete="off">
+            <label>
+              <span>SSID (network name)</span>
+              <input type="text" name="ssid" placeholder="e.g. Brunsell Garage" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input type="password" name="password" placeholder="Stored encrypted on the gateway" />
+            </label>
+            <label>
+              <span>Label (optional)</span>
+              <input type="text" name="label" placeholder="Garage, Marina, Lake House…" />
+            </label>
+            <div class="form-actions">
+              <button class="btn-primary" type="submit">Save network</button>
+              <span class="form-hint">Network credentials are encrypted at the gateway and never sent to our servers.</span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Uplink behavior</h3>
+          <div class="radio-cards">
+            <label class="radio-card">
+              <input type="radio" name="uplink" data-uplink-mode="wifi-preferred" />
+              <span class="rd-bullet"></span>
+              <span>
+                <span class="rd-title">WiFi-preferred &middot; cellular fallback <span class="rd-recommended">Recommended</span></span>
+                <span class="rd-meta">Use saved WiFi when in range, fall back to LTE-M whenever the boat is out of range. Lowest data cost for boats stored at home.</span>
+              </span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="uplink" data-uplink-mode="cellular-preferred" />
+              <span class="rd-bullet"></span>
+              <span>
+                <span class="rd-title">Cellular-preferred</span>
+                <span class="rd-meta">Always use LTE-M. Useful for boats that travel constantly or store at marinas with crowded WiFi.</span>
+              </span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="uplink" data-uplink-mode="cellular-only" />
+              <span class="rd-bullet"></span>
+              <span>
+                <span class="rd-title">Cellular only</span>
+                <span class="rd-meta">Disable WiFi radio entirely.</span>
+              </span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="uplink" data-uplink-mode="wifi-only" />
+              <span class="rd-bullet"></span>
+              <span>
+                <span class="rd-title">WiFi only</span>
+                <span class="rd-meta">Disable cellular. Boat goes offline when away from saved networks.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div id="account" style="margin-top:32px;">
+        <h2>Account</h2>
+        <div class="card">
+          <div class="kv-rows">
+            <div class="kv"><span class="lbl">Name</span><span class="val">Jake Brunsell</span></div>
+            <div class="kv"><span class="lbl">Email</span><span class="val">jbrunsell19@gmail.com</span></div>
+            <div class="kv"><span class="lbl">Boat</span><span class="val">Hull 0042 &middot; &ldquo;Outta Control&rdquo; &middot; 2024 Howard 288</span></div>
+            <div class="kv"><span class="lbl">Engine package</span><span class="val">Twin Mercury Racing 400R</span></div>
+            <div class="kv"><span class="lbl">Owner since</span><span class="val">May 2024</span></div>
+            <div class="kv"><span class="lbl">Connected service plan</span><span class="val">Howard Connect &middot; <span class="pill good"><span class="dot"></span> Active</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="notifications" style="margin-top:32px;">
+        <h2>Notifications</h2>
+        <div class="card">
+          <div class="notify-rows">
+            <div class="notify-row"><div><div class="lbl">Engine fault detected</div><div class="meta">Active ECU fault codes flagged in the field</div></div><div class="toggles"><span class="pill good">Push</span><span class="pill good">Email</span><span class="pill">SMS</span></div></div>
+            <div class="notify-row"><div><div class="lbl">Service interval reached</div><div class="meta">Oil change, plugs, gearcase lube due</div></div><div class="toggles"><span class="pill good">Push</span><span class="pill good">Email</span><span class="pill">SMS</span></div></div>
+            <div class="notify-row"><div><div class="lbl">Battery low</div><div class="meta">Main bank below 12.2 V or telemetry battery below 12.4 V</div></div><div class="toggles"><span class="pill good">Push</span><span class="pill good">Email</span><span class="pill good">SMS</span></div></div>
+            <div class="notify-row"><div><div class="lbl">Geofence breach</div><div class="meta">Boat moves outside its designated storage area</div></div><div class="toggles"><span class="pill good">Push</span><span class="pill good">Email</span><span class="pill good">SMS</span></div></div>
+            <div class="notify-row"><div><div class="lbl">Bilge water detected</div><div class="meta">Bilge probe wet for &gt; 90 seconds</div></div><div class="toggles"><span class="pill good">Push</span><span class="pill good">Email</span><span class="pill good">SMS</span></div></div>
+            <div class="notify-row"><div><div class="lbl">Gateway offline &gt; 24 hrs</div><div class="meta">No heartbeat received from the boat</div></div><div class="toggles"><span class="pill good">Push</span><span class="pill good">Email</span><span class="pill">SMS</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="privacy" style="margin-top:32px;">
+        <h2>Privacy &amp; Sharing</h2>
+        <div class="card">
+          <p style="color:var(--text-dim);font-size:14px;line-height:1.6;">
+            Howard Custom Boats can see your boat&rsquo;s service-relevant data (hours, fault codes, last-sync time) to support you and schedule preventive service. We never share location, run patterns, or fuel data with third parties. You can grant temporary read-only access to a marine surveyor or buyer in v2.
+          </p>
+        </div>
+      </div>
+
+      <div id="about" style="margin-top:32px;">
+        <h2>About this Boat</h2>
+        <div class="card kv-rows">
+          <div class="kv"><span class="lbl">Hull number</span><span class="val">0042</span></div>
+          <div class="kv"><span class="lbl">Build year</span><span class="val">2024</span></div>
+          <div class="kv"><span class="lbl">Gateway firmware</span><span class="val">v1.4.2 (Apr 24)</span></div>
+          <div class="kv"><span class="lbl">Telemetry battery</span><span class="val">12.93 V &middot; healthy</span></div>
+          <div class="kv"><span class="lbl">Cellular SIM</span><span class="val">Verizon LTE-M &middot; ICCID …4421</span></div>
+          <div class="kv"><span class="lbl">Last factory check</span><span class="val">Apr 18, 2026 &middot; Howard Yard</span></div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <nav class="mobile-nav" aria-label="Primary mobile">
+    <div class="mobile-nav-row six">
+      <a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="mercury.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Mercury</a>
+      <a href="teague.html"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Teague</a>
+      <a href="service.html"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>Service</a>
+      <a href="expenses.html"><svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Expenses</a>
+      <a href="location.html"><svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>Location</a>
+    </div>
+  </nav>
+
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="app.js"></script>
+</body>
+</html>
