@@ -913,29 +913,42 @@ HCB.initials = function (name) {
 
 HCB.fleetState = { search: "", engine: "All", status: "All", sortKey: "lastSyncMin", sortDir: 1 };
 
+HCB.kpiTile = function (label, value, meta, tone) {
+  return `
+    <div class="kpi-inner ${tone || ""}">
+      <div class="kpi-label">${label}</div>
+      <div class="kpi-value">${value}</div>
+      <div class="kpi-meta">${meta}</div>
+    </div>`;
+};
+
+HCB.healthCell = function (b) {
+  // One column that shows the most urgent thing about this hull, or "Clean" if nothing.
+  if (b.status === "Offline")    return `<span class="health-pill bad"><span class="dot"></span>Offline</span>`;
+  if (b.faults >= 2)             return `<span class="health-pill bad"><span class="dot"></span>${b.faults} faults</span>`;
+  if (b.faults === 1)            return `<span class="health-pill warn"><span class="dot"></span>1 fault</span>`;
+  if (b.serviceInHrs > 0 && b.serviceInHrs <= 5)  return `<span class="health-pill bad"><span class="dot"></span>Service overdue</span>`;
+  if (b.serviceInHrs > 0 && b.serviceInHrs <= 25) return `<span class="health-pill warn"><span class="dot"></span>Service near</span>`;
+  return `<span class="health-pill good"><span class="dot"></span>Clean</span>`;
+};
+
 HCB.renderFleet = function () {
   if (!document.getElementById("fleet-root")) return;
   const fl = HCB.fleet;
 
-  // --- KPI tiles ---
-  const kpis = document.getElementById("fleet-kpis");
-  if (kpis) {
-    const total   = fl.length;
-    const online  = fl.filter(b => b.lastSyncMin <= 60).length;
-    const stored  = fl.filter(b => b.status === "Stored").length;
-    const faults  = fl.reduce((a,b) => a + b.faults, 0);
-    const dueSoon = fl.filter(b => b.serviceInHrs > 0 && b.serviceInHrs <= 25).length;
-    const offline = fl.filter(b => b.status === "Offline").length;
-    kpis.innerHTML = `
-      <div class="kpi"><div class="lbl">Total Hulls</div><div class="val">${total}</div><div class="meta">connected fleet</div></div>
-      <div class="kpi"><div class="lbl">Online &lt; 1 hr</div><div class="val good">${online}</div><div class="meta">recently synced</div></div>
-      <div class="kpi"><div class="lbl">In Storage</div><div class="val">${stored}</div><div class="meta">battery off, on tender</div></div>
-      <div class="kpi"><div class="lbl">Active Faults</div><div class="val ${faults ? "warn" : ""}">${faults}</div><div class="meta">across all hulls</div></div>
-      <div class="kpi"><div class="lbl">Service Due &le; 25 hrs</div><div class="val ${dueSoon ? "warn" : ""}">${dueSoon}</div><div class="meta">proactive outreach</div></div>
-      <div class="kpi"><div class="lbl">Offline &gt; 24 hrs</div><div class="val ${offline ? "bad" : ""}">${offline}</div><div class="meta">last contact stale</div></div>`;
-  }
+  // KPI tiles
+  const total   = fl.length;
+  const online  = fl.filter(b => b.lastSyncMin <= 60).length;
+  const faults  = fl.reduce((a,b) => a + b.faults, 0);
+  const dueSoon = fl.filter(b => b.serviceInHrs > 0 && b.serviceInHrs <= 25).length;
 
-  // --- Filter + sort ---
+  const setKpi = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  setKpi("kpi-total",   HCB.kpiTile("Total hulls",          total,   "Connected fleet",          ""));
+  setKpi("kpi-online",  HCB.kpiTile("Synced &lt; 1 hr ago", online,  `of ${total} reporting`,    "good"));
+  setKpi("kpi-faults",  HCB.kpiTile("Active faults",        faults,  faults ? "Action needed" : "All clear", faults ? "warn" : ""));
+  setKpi("kpi-service", HCB.kpiTile("Service due in 25 hrs", dueSoon, dueSoon ? "Proactive outreach" : "Nothing urgent", dueSoon ? "warn" : ""));
+
+  // Filter + sort
   const st = HCB.fleetState;
   const filtered = fl.filter(b => {
     if (st.engine !== "All" && !b.package.toLowerCase().includes(st.engine.toLowerCase())) return false;
@@ -955,25 +968,23 @@ HCB.renderFleet = function () {
   if (tbody) {
     tbody.innerHTML = filtered.map(b => `
       <tr>
-        <td><strong>${b.hull}</strong></td>
         <td>
-          <div class="hull-cell">
-            <div class="avatar small">${HCB.initials(b.owner)}</div>
-            <div>
-              <div class="name">${b.name}</div>
-              <div class="sub">${b.owner}</div>
+          <div class="boat-cell">
+            <div class="boat-avatar">${HCB.initials(b.owner)}</div>
+            <div class="boat-text">
+              <div class="boat-line"><span class="boat-name">${b.name}</span><span class="boat-hull">#${b.hull}</span></div>
+              <div class="boat-owner">${b.owner} &middot; ${b.year}</div>
             </div>
           </div>
         </td>
-        <td>${b.year}</td>
         <td><span class="pkg-tag">${b.package}</span></td>
         <td class="num">${b.hours.toLocaleString()}</td>
-        <td>${HCB.syncDot(b.lastSyncMin)}<span style="margin-left:6px;">${b.lastSync}</span></td>
+        <td><span class="sync-cell">${HCB.syncDot(b.lastSyncMin)}<span>${b.lastSync}</span></span></td>
         <td>${HCB.statusPill(b.status)}</td>
-        <td>${HCB.faultCell(b.faults)}</td>
-        <td>${b.serviceInHrs === 0 ? '<span style="color:var(--text-mute);">In shop</span>' : HCB.serviceCell(b.serviceInHrs)}</td>
-        <td class="hide-sm" style="color:var(--text-mute);font-size:12px;">${b.location}</td>
-        <td><a href="${b.package.includes("Teague") ? "teague.html" : "mercury.html"}" class="row-link">Open &rsaquo;</a></td>
+        <td>${HCB.healthCell(b)}</td>
+        <td class="num">${b.serviceInHrs === 0 ? '<span class="muted">In shop</span>' : (b.serviceInHrs <= 5 ? `<span class="bad-text">${b.serviceInHrs} hrs</span>` : (b.serviceInHrs <= 25 ? `<span class="warn-text">${b.serviceInHrs} hrs</span>` : `${b.serviceInHrs} hrs`))}</td>
+        <td class="hide-md muted">${b.location}</td>
+        <td class="row-action"><a href="${b.package.includes("Teague") ? "teague.html" : "mercury.html"}" class="row-link">Open</a></td>
       </tr>`).join("");
   }
 
@@ -1026,24 +1037,19 @@ HCB.renderSettings = function () {
   if (!document.getElementById("settings-root")) return;
   const s = HCB.settings;
 
-  // Current connection
-  const cc = document.getElementById("conn-current");
-  if (cc) {
-    cc.innerHTML = `
-      <div class="conn-current-row">
-        <span class="conn-pip ${s.uplink.mode.startsWith("wifi") ? "good" : "warn"}"></span>
-        <div>
-          <div class="lbl">Current uplink</div>
-          <div class="val">${s.uplink.currentLink}</div>
-          <div class="meta">${s.uplink.currentSignal} · sending every 4 hrs (heartbeat)</div>
-        </div>
-        <div class="cell-stats">
-          <div class="lbl">Cellular standby</div>
-          <div class="val">${s.uplink.cellularSignal}</div>
-          <div class="meta">${s.uplink.cellularUsedMb} MB / ${s.uplink.cellularPlanMb} MB this month</div>
-        </div>
-      </div>`;
-  }
+  // Current uplink status (single panel row)
+  const isWifi = s.uplink.mode.startsWith("wifi");
+  const titleEl = document.getElementById("uplink-title");
+  const metaEl  = document.getElementById("uplink-meta");
+  const cellEl  = document.getElementById("uplink-cell");
+  const lightEl = document.getElementById("uplink-light");
+  if (titleEl) titleEl.textContent = s.uplink.currentLink;
+  if (metaEl)  metaEl.innerHTML = `${s.uplink.currentSignal} &middot; sending heartbeat every 4 hrs`;
+  if (lightEl) lightEl.classList.toggle("warn", !isWifi);
+  if (cellEl)  cellEl.innerHTML = `
+    <div class="status-cell-label">Cellular standby</div>
+    <div class="status-cell-val">${s.uplink.cellularSignal}</div>
+    <div class="status-cell-meta">${s.uplink.cellularUsedMb} MB / ${s.uplink.cellularPlanMb} MB this month</div>`;
 
   // Saved networks
   const nets = document.getElementById("conn-networks");
@@ -1054,12 +1060,15 @@ HCB.renderSettings = function () {
           <svg viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/></svg>
         </div>
         <div class="net-text">
-          <div class="ssid">${n.ssid}${n.state === "active" ? ' <span class="active-pill">Connected</span>' : ""}</div>
-          <div class="meta">${n.label} · ${n.lastSeen} · ${n.signal}</div>
+          <div class="net-ssid">
+            ${n.ssid}
+            ${n.state === "active" ? '<span class="tag tag-good">Connected</span>' : ""}
+          </div>
+          <div class="net-meta">${n.label} &middot; ${n.lastSeen} &middot; ${n.signal}</div>
         </div>
         <div class="net-actions">
           <button class="btn-mini" data-net-edit="${n.ssid}">Edit</button>
-          <button class="btn-mini ghost" data-net-forget="${n.ssid}">Forget</button>
+          <button class="btn-mini ghost" data-net-forget="${n.ssid}" title="Forget network">Forget</button>
         </div>
       </div>`).join("");
   }
@@ -1067,10 +1076,22 @@ HCB.renderSettings = function () {
   // Mode radios
   document.querySelectorAll("[data-uplink-mode]").forEach(r => {
     r.checked = (r.dataset.uplinkMode === s.uplink.mode);
+    const card = r.closest(".mode-card");
+    if (card) card.classList.toggle("selected", r.checked);
   });
 
-  // Bind add-network form
+  // Bind add-network form (once)
   const form = document.getElementById("net-add-form");
+  const showBtn = document.getElementById("show-add-net");
+  const cancelBtn = document.getElementById("cancel-add-net");
+  if (showBtn && !showBtn.dataset.bound) {
+    showBtn.dataset.bound = "1";
+    showBtn.addEventListener("click", () => { form.hidden = false; showBtn.style.display = "none"; form.querySelector("input[name=ssid]").focus(); });
+  }
+  if (cancelBtn && !cancelBtn.dataset.bound) {
+    cancelBtn.dataset.bound = "1";
+    cancelBtn.addEventListener("click", () => { form.hidden = true; if (showBtn) showBtn.style.display = ""; form.reset(); });
+  }
   if (form && !form.dataset.bound) {
     form.dataset.bound = "1";
     form.addEventListener("submit", e => {
@@ -1080,12 +1101,14 @@ HCB.renderSettings = function () {
       if (!ssid) return;
       s.networks.unshift({ ssid, label, lastSeen: "Just added", state: "saved", signal: "—" });
       form.reset();
+      form.hidden = true;
+      if (showBtn) showBtn.style.display = "";
       HCB.renderSettings();
       HCB.toast({ title: "Network saved", body: `${ssid} will be used when in range.`, tone: "good" });
     });
   }
 
-  // Bind forget buttons
+  // Forget buttons
   document.querySelectorAll("[data-net-forget]").forEach(b => b.addEventListener("click", () => {
     const ssid = b.dataset.netForget;
     s.networks = s.networks.filter(n => n.ssid !== ssid);
@@ -1093,11 +1116,13 @@ HCB.renderSettings = function () {
     HCB.toast({ title: "Network forgotten", body: `${ssid} removed from saved list.`, tone: "warn" });
   }));
 
-  // Bind mode change
+  // Mode change
   document.querySelectorAll("[data-uplink-mode]").forEach(r => r.addEventListener("change", () => {
     if (r.checked) {
       s.uplink.mode = r.dataset.uplinkMode;
-      HCB.toast({ title: "Uplink behavior updated", body: `Now: ${r.parentElement.querySelector(".rd-title").textContent}.`, tone: "good" });
+      const t = r.closest(".mode-card").querySelector(".mode-title").textContent.replace(/Recommended/i, "").trim();
+      HCB.toast({ title: "Uplink behavior updated", body: `Now: ${t}.`, tone: "good" });
+      HCB.renderSettings();
     }
   }));
 };
@@ -1105,5 +1130,30 @@ HCB.renderSettings = function () {
 (function bindSettings() {
   if (!document.getElementById("settings-root")) return;
   HCB.renderSettings();
+
+  // Tabbed sidebar — show one section at a time
+  const tabs = document.querySelectorAll(".settings-side a[data-tab]");
+  const sections = document.querySelectorAll(".settings-section");
+  function show(name) {
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+    sections.forEach(s => { s.hidden = (s.dataset.section !== name); });
+    if (history && history.replaceState) history.replaceState(null, "", "#" + name);
+  }
+  tabs.forEach(t => t.addEventListener("click", e => {
+    e.preventDefault();
+    show(t.dataset.tab);
+  }));
+  // Initial: from hash if valid, else first
+  const h = (location.hash || "").replace(/^#/, "");
+  const valid = Array.from(sections).map(s => s.dataset.section);
+  show(valid.includes(h) ? h : valid[0]);
+
+  // Notification toggles — flip the .on class
+  document.querySelectorAll(".toggle").forEach(t => t.addEventListener("click", () => {
+    t.classList.toggle("on");
+  }));
+
+  // Toolbar add-network shortcut may toggle: keep behavior
 })();
+
 

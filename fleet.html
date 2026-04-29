@@ -27,7 +27,7 @@
       <a href="location.html">Location</a>
     </nav>
     <div class="user-chip">
-      <a href="index.html" class="role-toggle" title="Switch to owner view">
+      <a href="index.html" class="role-toggle active" title="Switch to owner view">
         <svg class="ico" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/></svg>
         <span>Staff</span>
       </a>
@@ -39,78 +39,75 @@
     </div>
   </header>
 
-  <section class="page-title staff-title">
-    <span class="engine-badge staff-badge">
-      <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
-      Howard Staff View
-    </span>
-    <h1 style="margin-top:10px;">Connected Fleet</h1>
-    <div class="sub">Every Howard hull Howard has built and connected &middot; live status, last sync, faults, and predictive service</div>
+  <section class="page-hero staff-hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-kicker">Howard Staff View</div>
+        <h1>Connected Fleet</h1>
+        <p>Live status across every Howard hull connected to the cloud. Use this to track service intervals, fault codes, and storage state proactively.</p>
+      </div>
+    </div>
   </section>
 
-  <main class="container" id="fleet-root">
+  <main class="container container-wide" id="fleet-root">
 
-    <div class="kpi-row" id="fleet-kpis"></div>
+    <section class="kpi-grid">
+      <div class="kpi-tile" id="kpi-total"></div>
+      <div class="kpi-tile" id="kpi-online"></div>
+      <div class="kpi-tile" id="kpi-faults"></div>
+      <div class="kpi-tile" id="kpi-service"></div>
+    </section>
 
-    <div class="card fleet-controls">
-      <div class="filter-strip">
+    <section class="toolbar">
+      <div class="toolbar-left">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24" class="search-ico"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input id="fleet-search" type="text" placeholder="Search hull, owner, location…" />
-        </div>
-        <div class="chip-group" aria-label="Engine filter">
-          <span class="chip-label">Engine</span>
-          <button class="chip active" data-fleet-engine="All">All</button>
-          <button class="chip" data-fleet-engine="600 SCI">600 SCI</button>
-          <button class="chip" data-fleet-engine="400R">Twin 400R</button>
-          <button class="chip" data-fleet-engine="500R">Twin 500R</button>
-          <button class="chip" data-fleet-engine="Teague">Teague 1050</button>
-        </div>
-        <div class="chip-group" aria-label="Status filter">
-          <span class="chip-label">Status</span>
-          <button class="chip active" data-fleet-status="All">All</button>
-          <button class="chip" data-fleet-status="Stored">Stored</button>
-          <button class="chip" data-fleet-status="Running">Running</button>
-          <button class="chip" data-fleet-status="Trailered">Trailered</button>
-          <button class="chip" data-fleet-status="In Service">In Service</button>
-          <button class="chip" data-fleet-status="Offline">Offline</button>
+          <input id="fleet-search" type="text" placeholder="Search hull, owner, location" />
         </div>
       </div>
-      <div class="fleet-count" id="fleet-count">— hulls</div>
-    </div>
+      <div class="toolbar-right">
+        <div class="seg" role="tablist" aria-label="Engine">
+          <button class="active" data-fleet-engine="All">All engines</button>
+          <button data-fleet-engine="600 SCI">600 SCI</button>
+          <button data-fleet-engine="400R">400R</button>
+          <button data-fleet-engine="500R">500R</button>
+          <button data-fleet-engine="Teague">Teague</button>
+        </div>
+        <div class="seg" role="tablist" aria-label="Status">
+          <button class="active" data-fleet-status="All">All</button>
+          <button data-fleet-status="Stored">Stored</button>
+          <button data-fleet-status="Running">Running</button>
+          <button data-fleet-status="Trailered">Trailered</button>
+          <button data-fleet-status="In Service">Service</button>
+          <button data-fleet-status="Offline">Offline</button>
+        </div>
+      </div>
+    </section>
 
-    <div class="card fleet-table-wrap">
-      <table class="fleet-table">
-        <thead>
-          <tr>
-            <th data-fleet-sort="hull">Hull</th>
-            <th>Boat &middot; Owner</th>
-            <th data-fleet-sort="year" class="hide-sm">Year</th>
-            <th>Engines</th>
-            <th data-fleet-sort="hours" class="num">Hours</th>
-            <th data-fleet-sort="lastSyncMin">Last Sync</th>
-            <th>Status</th>
-            <th>Faults</th>
-            <th data-fleet-sort="serviceInHrs">Service Due</th>
-            <th class="hide-sm">Last Location</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="fleet-tbody"></tbody>
-      </table>
-    </div>
-
-    <div class="staff-callout">
-      <h3>What this view enables Howard to do</h3>
-      <ul class="feature-list two-col">
-        <li><span class="check">&#10003;</span> Proactively call owners with engines approaching service intervals — before they think to ask</li>
-        <li><span class="check">&#10003;</span> Spot active fault codes across the fleet and reach out before warranty escalations</li>
-        <li><span class="check">&#10003;</span> Identify stale hulls (offline 30+ days) for re-engagement and resale-lead generation</li>
-        <li><span class="check">&#10003;</span> Track engine-package adoption (400R vs 500R vs Teague) to inform production planning</li>
-        <li><span class="check">&#10003;</span> Open any owner&rsquo;s dashboard with one click for support and walkthrough calls</li>
-        <li><span class="check">&#10003;</span> Build a recurring-revenue connected-service tier on top of the install</li>
-      </ul>
-    </div>
+    <section class="data-card">
+      <div class="data-head">
+        <span class="data-title">Hulls</span>
+        <span class="data-count" id="fleet-count">— hulls</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-fleet-sort="hull" style="width: 28%;">Boat</th>
+              <th>Engines</th>
+              <th data-fleet-sort="hours" class="num">Hours</th>
+              <th data-fleet-sort="lastSyncMin">Last sync</th>
+              <th>Status</th>
+              <th>Health</th>
+              <th data-fleet-sort="serviceInHrs">Service due</th>
+              <th class="hide-md">Last seen</th>
+              <th aria-label="Open"></th>
+            </tr>
+          </thead>
+          <tbody id="fleet-tbody"></tbody>
+        </table>
+      </div>
+    </section>
 
   </main>
 
