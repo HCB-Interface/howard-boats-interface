@@ -9,7 +9,7 @@ glance for high-end boat owners who store their boats away from home.
 
 This is a static front-end demo (HTML / CSS / vanilla JS). Data is mocked in
 `app.js`; future revisions would hook into the boat's Garmin / Simrad / Mercury
-electronics for live telemetry.
+electronics for live telemetry. 
 
 ## Pages
 
