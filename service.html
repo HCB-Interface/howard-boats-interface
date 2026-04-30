@@ -200,10 +200,7 @@
   <div class="toast-stack" id="toast-stack"></div>
   <script src="app.js"></script>
   <script>
-    document.getElementById("btn-add-entry")?.addEventListener("click", () =>
-      HCB.toast({ title: "Add entry", body: "Service entry form would open here.", tone: "good" }));
-    document.getElementById("btn-book")?.addEventListener("click", () =>
-      HCB.toast({ title: "Booking request sent", body: "Howard Service — Valencia will confirm your slot.", tone: "good" }));
+    // Add-entry / book-service handlers now live in app.js (HCB.openAddMaintenance / HCB.openBookService)
     document.getElementById("uploader")?.addEventListener("click", (e) => {
       if (e.target.tagName === "INPUT") return;
       document.querySelector("#uploader input").click();

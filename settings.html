@@ -64,6 +64,10 @@
         <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
         Account
       </a>
+      <a href="#sharing" data-tab="sharing">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        Sharing &amp; ownership
+      </a>
       <a href="#about" data-tab="about">
         <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
         About this boat
@@ -229,6 +233,51 @@
             <div class="kv"><span class="lbl">Engine package</span><span class="val">Twin Mercury Racing 400R</span></div>
             <div class="kv"><span class="lbl">Owner since</span><span class="val">May 2024</span></div>
             <div class="kv"><span class="lbl">Connected service</span><span class="val">Howard Connect &middot; <span class="tag tag-good">Active</span></span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="settings-section" id="sharing" data-section="sharing" hidden>
+        <header class="section-head">
+          <h2>Sharing &amp; ownership</h2>
+          <p>By default, only you see this boat's location and live data. Use these controls to share temporarily, mark the boat as stolen, or transfer ownership at sale.</p>
+        </header>
+
+        <div class="panel" id="stolen-panel">
+          <div class="panel-head">
+            <h3>Stolen / panic mode</h3>
+          </div>
+          <div id="stolen-state" class="stolen-state-idle">
+            <p class="hint" style="margin:0 0 10px;">If the boat is stolen, switching to panic mode raises the heartbeat to every 5 minutes, sends maximum-priority alerts on every geofence breach, and generates a tracking link you can share with law enforcement.</p>
+            <button class="btn-danger" id="btn-mark-stolen" type="button">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              Mark this boat as stolen
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Active location shares</h3>
+            <button class="btn-ghost" id="btn-new-share" type="button">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              New share
+            </button>
+          </div>
+          <div id="share-list"></div>
+          <p class="hint" id="share-empty" style="margin:8px 0 0;display:none;">No active shares. Anyone you share with will see your boat's live location for the duration you set, and nothing else.</p>
+        </div>
+
+        <div class="panel" id="transfer-panel">
+          <div class="panel-head">
+            <h3>Transfer ownership</h3>
+          </div>
+          <div id="transfer-state">
+            <p class="hint" style="margin:0 0 10px;">When you sell the boat, transferring ownership migrates service history, hours, fault history, and gateway configuration to the new owner. Your account is unlinked from the hull when they accept.</p>
+            <button class="btn-ghost" id="btn-begin-transfer" type="button">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              Begin ownership transfer
+            </button>
           </div>
         </div>
       </article>

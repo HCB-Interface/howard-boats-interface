@@ -1046,7 +1046,7 @@ HCB.renderFleet = function () {
   if (tbody) {
     tbody.innerHTML = filtered.map(b => `
       <tr>
-        <td>
+        <td data-label="Boat">
           <div class="boat-cell">
             <div class="boat-avatar">${HCB.initials(b.owner)}</div>
             <div class="boat-text">
@@ -1055,12 +1055,12 @@ HCB.renderFleet = function () {
             </div>
           </div>
         </td>
-        <td><span class="pkg-tag">${b.package}</span></td>
-        <td class="num">${b.hours.toLocaleString()}</td>
-        <td><span class="sync-cell">${HCB.syncDot(b.lastSyncMin)}<span>${b.lastSync}</span></span></td>
-        <td>${HCB.statusPill(b.status)}</td>
-        <td>${HCB.healthCell(b)}</td>
-        <td class="num">${b.serviceInHrs === 0 ? '<span class="muted">In shop</span>' : (b.serviceInHrs <= 5 ? `<span class="bad-text">${b.serviceInHrs} hrs</span>` : (b.serviceInHrs <= 25 ? `<span class="warn-text">${b.serviceInHrs} hrs</span>` : `${b.serviceInHrs} hrs`))}</td>
+        <td data-label="Engines"><span class="pkg-tag">${b.package}</span></td>
+        <td data-label="Hours" class="num">${b.hours.toLocaleString()}</td>
+        <td data-label="Last sync"><span class="sync-cell">${HCB.syncDot(b.lastSyncMin)}<span>${b.lastSync}</span></span></td>
+        <td data-label="Status">${HCB.statusPill(b.status)}</td>
+        <td data-label="Health">${HCB.healthCell(b)}</td>
+        <td data-label="Service due" class="num">${b.serviceInHrs === 0 ? '<span class="muted">In shop</span>' : (b.serviceInHrs <= 5 ? `<span class="bad-text">${b.serviceInHrs} hrs</span>` : (b.serviceInHrs <= 25 ? `<span class="warn-text">${b.serviceInHrs} hrs</span>` : `${b.serviceInHrs} hrs`))}</td>
         <td class="row-action"><a href="${b.package.includes("Teague") ? "teague.html" : "mercury.html"}?hull=${b.hull}" class="row-link">Open</a></td>
       </tr>`).join("");
   }
@@ -1234,3 +1234,383 @@ HCB.renderSettings = function () {
 })();
 
 
+
+/* ======================================================================
+   Phase 2 (added 2026-04-30): Modal system, localStorage persistence,
+   richer settings interactions, Add-Maintenance + Book-Service flows.
+   ====================================================================== */
+
+/* ---------- localStorage helpers (HCB-prefixed) ---------- */
+HCB.store = {
+  get(key, fallback) {
+    try { const v = localStorage.getItem("hcb_" + key); return v == null ? fallback : JSON.parse(v); }
+    catch (_) { return fallback; }
+  },
+  set(key, val) {
+    try { localStorage.setItem("hcb_" + key, JSON.stringify(val)); } catch (_) {}
+  },
+  del(key) { try { localStorage.removeItem("hcb_" + key); } catch (_) {} },
+};
+
+/* ---------- Modal helper ---------- */
+HCB.openModal = function ({ title, bodyHtml, primaryLabel = "Save", primaryTone = "primary",
+                           onSubmit, secondaryLabel = "Cancel" }) {
+  // Tear down any existing modal
+  document.querySelectorAll(".hcb-modal-backdrop").forEach(m => m.remove());
+
+  const back = document.createElement("div");
+  back.className = "hcb-modal-backdrop";
+  back.innerHTML = `
+    <div class="hcb-modal" role="dialog" aria-modal="true" aria-label="${title}">
+      <div class="hcb-modal-head">
+        <h3>${title}</h3>
+        <button class="hcb-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <form class="hcb-modal-body" autocomplete="off">${bodyHtml}</form>
+      <div class="hcb-modal-foot">
+        <button type="button" class="btn-ghost hcb-modal-cancel">${secondaryLabel}</button>
+        <button type="submit" class="btn-${primaryTone} hcb-modal-submit">${primaryLabel}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(back);
+  requestAnimationFrame(() => back.classList.add("open"));
+
+  const form = back.querySelector("form");
+  // Wire submit button to the form (it lives outside the form for layout)
+  back.querySelector(".hcb-modal-submit").addEventListener("click", () => form.requestSubmit());
+  const close = () => {
+    back.classList.remove("open");
+    setTimeout(() => back.remove(), 180);
+  };
+  back.querySelector(".hcb-modal-close").addEventListener("click", close);
+  back.querySelector(".hcb-modal-cancel").addEventListener("click", close);
+  back.addEventListener("click", e => { if (e.target === back) close(); });
+  document.addEventListener("keydown", function esc(e) {
+    if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc); }
+  });
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    const result = onSubmit ? onSubmit(data) : true;
+    if (result !== false) close();
+  });
+
+  // Focus first input
+  setTimeout(() => { const first = form.querySelector("input, select, textarea"); if (first) first.focus(); }, 60);
+
+  return { close, form };
+};
+
+/* ======================================================================
+   Service log persistence + Add-Maintenance modal
+   ====================================================================== */
+
+(function hydrateServiceLog() {
+  const saved = HCB.store.get("serviceLog", null);
+  if (Array.isArray(saved)) HCB.owner.serviceLog = saved;
+})();
+
+HCB.persistServiceLog = function () { HCB.store.set("serviceLog", HCB.owner.serviceLog); };
+
+HCB.rerenderServiceLog = function () {
+  const tbody = document.getElementById("service-log-body");
+  if (!tbody) return;
+  tbody.innerHTML = HCB.owner.serviceLog.map(r => `
+    <tr>
+      <td data-label="Date">${r.date}</td>
+      <td data-label="Work">${r.work}</td>
+      <td data-label="Shop">${r.shop}</td>
+      <td data-label="Hours">${r.hours}</td>
+      <td data-label="Cost">${r.cost}</td>
+      <td data-label="Status"><span class="pill ${r.status.tone}"><span class="dot"></span> ${r.status.label}</span></td>
+    </tr>`).join("");
+};
+
+HCB.openAddMaintenance = function () {
+  const today = new Date();
+  const iso = today.toISOString().slice(0, 10);
+  const currentHours = HCB.owner.boat.engineHours.toFixed(1);
+  HCB.openModal({
+    title: "Add maintenance entry",
+    primaryLabel: "Save entry",
+    bodyHtml: `
+      <label class="field">
+        <span>Work performed</span>
+        <input name="work" required placeholder="e.g. Oil & filter, plug replacement" />
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>Date</span>
+          <input name="date" type="date" value="${iso}" required />
+        </label>
+        <label class="field">
+          <span>Engine hours</span>
+          <input name="hours" type="number" step="0.1" min="0" value="${currentHours}" required />
+        </label>
+      </div>
+      <label class="field">
+        <span>Shop / who did the work</span>
+        <input name="shop" required placeholder="Howard Service — Valencia" value="Howard Service — Valencia" />
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>Cost (USD)</span>
+          <input name="cost" type="number" step="1" min="0" placeholder="645" />
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select name="status">
+            <option value="Complete">Complete</option>
+            <option value="Scheduled">Scheduled</option>
+            <option value="In progress">In progress</option>
+          </select>
+        </label>
+      </div>
+      <label class="field">
+        <span>Notes (optional)</span>
+        <textarea name="notes" placeholder="Anything Howard service should know"></textarea>
+      </label>
+    `,
+    onSubmit: data => {
+      if (!data.work || !data.date || !data.hours) return false;
+      const dateLabel = new Date(data.date + "T00:00:00").toLocaleDateString("en-US", {
+        month: "short", day: "2-digit", year: "numeric",
+      });
+      const tone = data.status === "Scheduled" ? "warn" : data.status === "In progress" ? "warn" : "good";
+      const entry = {
+        date: dateLabel,
+        work: data.work + (data.notes ? ` — ${data.notes}` : ""),
+        shop: data.shop || "—",
+        hours: Number(data.hours).toFixed(1),
+        cost: data.cost ? `$${Number(data.cost).toLocaleString()}` : "—",
+        status: { label: data.status, tone },
+      };
+      HCB.owner.serviceLog.unshift(entry);
+      HCB.persistServiceLog();
+      HCB.rerenderServiceLog();
+      HCB.toast({ title: "Service entry added",
+                  body: `${entry.work.slice(0, 40)} · ${entry.date}`, tone: "good" });
+    },
+  });
+};
+
+HCB.openBookService = function () {
+  const today = new Date();
+  const next = new Date(today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  HCB.openModal({
+    title: "Book service appointment",
+    primaryLabel: "Send request",
+    bodyHtml: `
+      <label class="field">
+        <span>Service type</span>
+        <select name="type" required>
+          <option>100-hr engine inspection</option>
+          <option>Oil &amp; filter change</option>
+          <option>Lower unit / gearcase service</option>
+          <option>Hull wax &amp; detail</option>
+          <option>Winterization</option>
+          <option>Diagnostic — fault codes</option>
+          <option>Other (note below)</option>
+        </select>
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>Preferred date</span>
+          <input name="date" type="date" value="${next}" required />
+        </label>
+        <label class="field">
+          <span>Drop-off</span>
+          <select name="dropoff">
+            <option>Howard Yard — Valencia</option>
+            <option>Mobile (yard pickup)</option>
+            <option>Trailer in</option>
+          </select>
+        </label>
+      </div>
+      <label class="field">
+        <span>Notes for the shop</span>
+        <textarea name="notes" placeholder="Symptoms, questions, scheduling notes"></textarea>
+      </label>
+    `,
+    onSubmit: data => {
+      const dateLabel = new Date(data.date + "T00:00:00").toLocaleDateString("en-US", {
+        month: "short", day: "2-digit", year: "numeric",
+      });
+      // Add a "scheduled" line to the log so the booking is visible immediately
+      HCB.owner.serviceLog.unshift({
+        date: dateLabel, work: data.type, shop: "Howard Service — Valencia",
+        hours: "—", cost: "Pending", status: { label: "Scheduled", tone: "warn" },
+      });
+      HCB.persistServiceLog();
+      HCB.rerenderServiceLog();
+      HCB.toast({ title: "Booking request sent",
+                  body: `${data.type} — ${dateLabel}. Howard Service will confirm.`,
+                  tone: "good" });
+    },
+  });
+};
+
+/* Wire the service-page buttons (overrides the inline toast stub if loaded earlier) */
+(function wireServiceButtons() {
+  const add = document.getElementById("btn-add-entry");
+  const book = document.getElementById("btn-book");
+  if (add) {
+    const fresh = add.cloneNode(true); add.parentNode.replaceChild(fresh, add);
+    fresh.addEventListener("click", HCB.openAddMaintenance);
+  }
+  if (book) {
+    const fresh = book.cloneNode(true); book.parentNode.replaceChild(fresh, book);
+    fresh.addEventListener("click", HCB.openBookService);
+  }
+  // "View all receipts" was an inert anchor — give it a useful action
+  const va = document.getElementById("btn-view-all-receipts");
+  if (va) va.addEventListener("click", e => {
+    e.preventDefault();
+    HCB.toast({ title: "Receipts archive",
+                body: "Full receipt archive ships with v2 — nothing lost in the meantime.",
+                tone: "warn" });
+  });
+})();
+
+/* ======================================================================
+   Settings: Notifications persistence + Account edit + About actions
+   + Network edit (in addition to forget)
+   ====================================================================== */
+
+(function settingsPhaseTwo() {
+  if (!document.getElementById("settings-root")) return;
+
+  /* --- Notification toggles persist to localStorage ------------------- */
+  const NOTIFY_KEY = "notifyMatrix";
+  const rows = document.querySelectorAll(".notify-grid-row");
+  // Build initial state from DOM (preserves the designer-set defaults
+  // unless the user has saved overrides).
+  const stored = HCB.store.get(NOTIFY_KEY, null);
+  rows.forEach((row, i) => {
+    const toggles = row.querySelectorAll(".toggle");
+    if (stored && stored[i]) {
+      toggles.forEach((t, j) => t.classList.toggle("on", !!stored[i][j]));
+    }
+    toggles.forEach((t, j) => t.addEventListener("click", () => {
+      // The earlier handler already toggles the .on class — we just persist.
+      const snapshot = Array.from(rows).map(r =>
+        Array.from(r.querySelectorAll(".toggle")).map(x => x.classList.contains("on")));
+      HCB.store.set(NOTIFY_KEY, snapshot);
+    }));
+  });
+
+  /* --- Account edit ---------------------------------------------------- */
+  const accountSection = document.getElementById("account");
+  if (accountSection) {
+    // Hydrate from store
+    const saved = HCB.store.get("ownerProfile", null);
+    if (saved) {
+      if (saved.name)  HCB.owner.name = saved.name;
+      if (saved.email) HCB.owner.email = saved.email;
+    }
+    // Add an Edit profile button if not present yet
+    if (!accountSection.querySelector(".acct-edit")) {
+      const head = accountSection.querySelector(".section-head");
+      if (head) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-ghost acct-edit";
+        btn.style.cssText = "margin-top:8px;";
+        btn.innerHTML = `<svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg> Edit profile`;
+        head.appendChild(btn);
+        btn.addEventListener("click", openAccountEdit);
+      }
+    }
+    // Reflect any saved overrides into the displayed values
+    const nameVal = accountSection.querySelectorAll(".kv .val")[0];
+    const emailVal = accountSection.querySelectorAll(".kv .val")[1];
+    if (saved && saved.name && nameVal)   nameVal.textContent = saved.name;
+    if (saved && saved.email && emailVal) emailVal.textContent = saved.email;
+  }
+
+  function openAccountEdit() {
+    const saved = HCB.store.get("ownerProfile", {}) || {};
+    const curName  = saved.name  || HCB.owner.name || "";
+    const curEmail = saved.email || "jbrunsell19@gmail.com";
+    HCB.openModal({
+      title: "Edit profile",
+      primaryLabel: "Save",
+      bodyHtml: `
+        <label class="field"><span>Name</span><input name="name" required value="${curName}" /></label>
+        <label class="field"><span>Email</span><input name="email" type="email" required value="${curEmail}" /></label>
+        <label class="field"><span>Phone (for SMS alerts)</span><input name="phone" placeholder="+1 ..." value="${saved.phone || ""}" /></label>
+      `,
+      onSubmit: data => {
+        const profile = { name: data.name.trim(), email: data.email.trim(), phone: data.phone.trim() };
+        HCB.store.set("ownerProfile", profile);
+        HCB.owner.name = profile.name;
+        const accountSection = document.getElementById("account");
+        const vals = accountSection.querySelectorAll(".kv .val");
+        if (vals[0]) vals[0].textContent = profile.name;
+        if (vals[1]) vals[1].textContent = profile.email;
+        // Update topbar identity
+        const u = document.getElementById("user-name"); if (u) u.textContent = profile.name;
+        const av = document.getElementById("avatar-initials");
+        if (av) av.textContent = profile.name.split(/\s+/).slice(0,2).map(s=>s[0]).join("").toUpperCase();
+        HCB.toast({ title: "Profile updated", body: "Saved on this device.", tone: "good" });
+      },
+    });
+  }
+
+  /* --- About-this-boat actions ---------------------------------------- */
+  const aboutSection = document.getElementById("about");
+  if (aboutSection && !aboutSection.querySelector(".about-actions")) {
+    const panel = aboutSection.querySelector(".panel");
+    if (panel) {
+      const row = document.createElement("div");
+      row.className = "about-actions";
+      row.innerHTML = `
+        <button class="btn-ghost" type="button" data-about="diag">Run gateway diagnostics</button>
+        <button class="btn-ghost" type="button" data-about="fw">Check for firmware updates</button>
+        <button class="btn-ghost" type="button" data-about="sync">Force sync now</button>
+      `;
+      panel.appendChild(row);
+      row.querySelector('[data-about="diag"]').addEventListener("click", () => {
+        HCB.toast({ title: "Gateway diagnostics started",
+                    body: "Cellular -78 dBm · WiFi -52 dBm · battery 12.93 V — all green.",
+                    tone: "good" });
+      });
+      row.querySelector('[data-about="fw"]').addEventListener("click", () => {
+        HCB.toast({ title: "Firmware up to date",
+                    body: "v1.4.2 is the latest release. Next check in 24 hrs.",
+                    tone: "good" });
+      });
+      row.querySelector('[data-about="sync"]').addEventListener("click", () => {
+        HCB.toast({ title: "Forcing sync",
+                    body: "Gateway will report in within 60 seconds.",
+                    tone: "warn" });
+      });
+    }
+  }
+
+  /* --- Network "Edit" button (was inert) ------------------------------- */
+  document.addEventListener("click", e => {
+    const btn = e.target.closest("[data-net-edit]");
+    if (!btn) return;
+    const ssid = btn.dataset.netEdit;
+    const net = HCB.settings.networks.find(n => n.ssid === ssid);
+    if (!net) return;
+    HCB.openModal({
+      title: `Edit ${net.ssid}`,
+      primaryLabel: "Save changes",
+      bodyHtml: `
+        <label class="field"><span>Network name (SSID)</span><input name="ssid" required value="${net.ssid}" /></label>
+        <label class="field"><span>Password</span><input name="password" type="password" placeholder="Leave blank to keep current" /></label>
+        <label class="field"><span>Label</span><input name="label" value="${net.label}" /></label>
+      `,
+      onSubmit: data => {
+        const old = net.ssid;
+        net.ssid  = data.ssid.trim() || net.ssid;
+        net.label = data.label.trim() || net.label;
+        HCB.renderSettings();
+        HCB.toast({ title: "Network updated", body: `${old} saved.`, tone: "good" });
+      },
+    });
+  });
+})();
