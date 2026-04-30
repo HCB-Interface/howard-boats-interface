@@ -5,7 +5,7 @@
 Prototype of a boat-owner dashboard for Howard Custom Boats of Valencia, CA.
 Inspired by the myChevrolet / Tesla owner apps — shows fuel level, engine & hull
 hours, ambient temperature, GPS location, service reminders and receipts at a
-glance for high-end boat owners who store their boats away from home.
+glance for high-end boat owners who store their boats away from home. 
 
 This is a static front-end demo (HTML / CSS / vanilla JS). Data is mocked in
 `app.js`; future revisions would hook into the boat's Garmin / Simrad / Mercury
