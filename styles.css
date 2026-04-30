@@ -2685,3 +2685,42 @@ body.theme-teague .engine-badge {
   }
   .settings-side a { flex: 1 1 auto; justify-content: center; min-width: 110px; }
 }
+
+/* ---- Staff-view banner (per-boat, when ?hull= is present) -------- */
+.staff-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 18px;
+  background: linear-gradient(90deg, rgba(58,92,158,.22), rgba(58,92,158,.10));
+  border-bottom: 1px solid #2c4d8f;
+  color: #d6e2f4;
+  font-size: 13px;
+}
+.staff-banner .sb-pip {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #97b3e8;
+  box-shadow: 0 0 0 3px rgba(151,179,232,.18);
+}
+.staff-banner .sb-text { flex: 1; min-width: 0; }
+.staff-banner .sb-text strong {
+  color: #ffffff;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #2c4d8f;
+}
+.staff-banner .sb-owner { color: rgba(214,226,244,.7); }
+.staff-banner .sb-back {
+  color: #97b3e8;
+  font-weight: 600;
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.staff-banner .sb-back:hover { color: #ffffff; }

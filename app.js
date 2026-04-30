@@ -465,6 +465,84 @@ HCB.trendSvg = function (points, opts = {}) {
     </svg>`;
 };
 
+
+/* ---------- Staff-view override: when ?hull=XXXX is in the URL,
+   re-point the per-engine dashboards at that boat's identity. ----- */
+HCB.getHullParam = function () {
+  try { return new URL(window.location.href).searchParams.get("hull"); }
+  catch (_) { return null; }
+};
+
+HCB.findFleetBoat = function (hull) {
+  if (!hull || !HCB.fleet) return null;
+  return HCB.fleet.find(b => String(b.hull) === String(hull)) || null;
+};
+
+HCB.showStaffBanner = function (boat) {
+  if (document.querySelector(".staff-banner")) return;
+  const b = document.createElement("div");
+  b.className = "staff-banner";
+  b.innerHTML = `
+    <span class="sb-pip"></span>
+    <span class="sb-text"><strong>Staff view</strong> &middot; Hull ${boat.hull} &middot; ${boat.name}
+      <span class="sb-owner">&middot; ${boat.owner}</span></span>
+    <a href="fleet.html" class="sb-back">&larr; Back to fleet</a>`;
+  document.body.insertBefore(b, document.body.firstChild);
+  document.body.classList.add("has-staff-banner");
+};
+
+HCB.applyStaffViewMercury = function () {
+  const hull = HCB.getHullParam();
+  if (!hull) return;
+  const boat = HCB.findFleetBoat(hull);
+  if (!boat) return;
+  // Wrong page? Send the user to the right one.
+  if (boat.package.includes("Teague") && /mercury\.html/i.test(location.pathname)) {
+    location.replace("teague.html?hull=" + boat.hull);
+    return;
+  }
+  // Mutate HCB.mercury identity + headline numbers BEFORE renderers run.
+  HCB.mercury.package        = boat.package;
+  HCB.mercury.lastSync       = boat.lastSync;
+  HCB.mercury.daysSinceLastRun = Math.max(1, Math.round(boat.lastSyncMin / 1440)) || 1;
+  HCB.mercury.engines[0].hours = +(boat.hours / 2 + 0.3).toFixed(1);
+  HCB.mercury.engines[1].hours = +(boat.hours / 2 - 0.3).toFixed(1);
+  // Update the static page title sub-line in the DOM as soon as it's there.
+  const apply = () => {
+    const sub = document.querySelector(".page-title .sub");
+    if (sub) sub.innerHTML = `${boat.package} &middot; Hull ${boat.hull} &ldquo;${boat.name}&rdquo; &middot; <strong>${boat.owner}</strong>`;
+    HCB.showStaffBanner(boat);
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply);
+  else apply();
+};
+
+HCB.applyStaffViewTeague = function () {
+  const hull = HCB.getHullParam();
+  if (!hull) return;
+  const boat = HCB.findFleetBoat(hull);
+  if (!boat) return;
+  if (!boat.package.includes("Teague") && /teague\.html/i.test(location.pathname)) {
+    location.replace("mercury.html?hull=" + boat.hull);
+    return;
+  }
+  HCB.teague.package = boat.package;
+  HCB.teague.lastSync = boat.lastSync;
+  HCB.teague.daysSinceLastRun = Math.max(1, Math.round(boat.lastSyncMin / 1440)) || 1;
+  HCB.teague.hours = boat.hours;
+  const apply = () => {
+    const sub = document.querySelector(".page-title .sub");
+    if (sub) sub.innerHTML = `${boat.package} &middot; Hull ${boat.hull} &ldquo;${boat.name}&rdquo; &middot; <strong>${boat.owner}</strong>`;
+    HCB.showStaffBanner(boat);
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply);
+  else apply();
+};
+
+// Run early, before the per-page renderers below.
+HCB.applyStaffViewMercury();
+HCB.applyStaffViewTeague();
+
 /* ---------- Mercury page render ---------- */
 (function renderMercury() {
   const root = document.getElementById("mercury-root");
@@ -860,22 +938,22 @@ HCB.storageCard = function (s) {
    ============================================================ */
 
 HCB.fleet = [
-  { hull: "0046", name: "Showtime",        owner: "Adam Reilly",      year: 2026, package: "Twin 500R",  hours:    4, lastSync: "22 min ago", lastSyncMin:    22, status: "Stored",     faults: 0, serviceInHrs: 96,  location: "Newport Beach, CA" },
-  { hull: "0045", name: "Beauty Mark",     owner: "Lila Greenfield",  year: 2025, package: "Twin 500R",  hours:   22, lastSync: "Just now",   lastSyncMin:     1, status: "Trailered",  faults: 0, serviceInHrs: 78,  location: "I-15 N, Barstow"   },
-  { hull: "0044", name: "Last Call",       owner: "Wesley Tran",      year: 2025, package: "Twin 500R",  hours:   38, lastSync: "18 min ago", lastSyncMin:    18, status: "Stored",     faults: 0, serviceInHrs: 62,  location: "Lake Havasu, AZ"   },
-  { hull: "0042", name: "Outta Control",   owner: "Jake Brunsell",    year: 2024, package: "Twin 400R",  hours:  188, lastSync: "4 min ago",  lastSyncMin:     4, status: "Stored",     faults: 0, serviceInHrs: 12,  location: "Valencia, CA"      },
-  { hull: "0041", name: "Sea Witch",       owner: "Marisol Aguilar",  year: 2024, package: "Twin 400R",  hours:   96, lastSync: "Just now",   lastSyncMin:     0, status: "Running",    faults: 0, serviceInHrs: 4,   location: "Lake Mohave, NV"   },
-  { hull: "0040", name: "Velvet Hammer",   owner: "Joshua Park",      year: 2023, package: "Teague 1050",hours:  162, lastSync: "6 min ago",  lastSyncMin:     6, status: "Stored",     faults: 0, serviceInHrs: 38,  location: "Long Beach, CA"    },
-  { hull: "0039", name: "Salt Therapy",    owner: "Karina Petrov",    year: 2023, package: "Twin 400R",  hours:  218, lastSync: "1 hr ago",   lastSyncMin:    62, status: "Stored",     faults: 0, serviceInHrs: 82,  location: "Marina del Rey, CA"},
-  { hull: "0038", name: "Reel Therapy",    owner: "Daniel Kasper",    year: 2023, package: "600 SCI",    hours:  412, lastSync: "2 hr ago",   lastSyncMin:   124, status: "Stored",     faults: 0, serviceInHrs: 88,  location: "Dana Point, CA"    },
-  { hull: "0037", name: "Quick Six",       owner: "Audrey Naval",     year: 2022, package: "Twin 400R",  hours:  298, lastSync: "4 hr ago",   lastSyncMin:   240, status: "Stored",     faults: 0, serviceInHrs: 2,   location: "San Diego, CA"     },
-  { hull: "0036", name: "Tres Hermanos",   owner: "Hector Vega",      year: 2022, package: "600 SCI",    hours:  488, lastSync: "11 min ago", lastSyncMin:    11, status: "Stored",     faults: 1, serviceInHrs: 24,  location: "Lake Pleasant, AZ" },
-  { hull: "0035", name: "Holy Diver",      owner: "Sarah Lin",        year: 2022, package: "Teague 1050",hours:  248, lastSync: "3 hr ago",   lastSyncMin:   180, status: "Stored",     faults: 0, serviceInHrs: 56,  location: "Lake Mead, NV"     },
-  { hull: "0034", name: "Reel Estate",     owner: "Patrick Yi",       year: 2021, package: "600 SCI",    hours:  712, lastSync: "2 hr ago",   lastSyncMin:   124, status: "Stored",     faults: 0, serviceInHrs: 14,  location: "Lake Tahoe, CA"    },
-  { hull: "0033", name: "Big Wake",        owner: "Jorge Mendoza",    year: 2021, package: "600 SCI",    hours:  612, lastSync: "6 days ago", lastSyncMin: 8640,  status: "Offline",    faults: 0, serviceInHrs: 32,  location: "Last: Phoenix, AZ" },
-  { hull: "0031", name: "Rumrunner",       owner: "Caleb Wexler",     year: 2021, package: "Teague 1050",hours:  524, lastSync: "1 day ago",  lastSyncMin: 1440,  status: "Stored",     faults: 1, serviceInHrs: 18,  location: "Newport Beach, CA" },
-  { hull: "0030", name: "Free Lunch",      owner: "Greg Stovall",     year: 2020, package: "600 SCI",    hours: 1042, lastSync: "1 week ago", lastSyncMin: 10080, status: "In Service", faults: 0, serviceInHrs: 0,   location: "Howard Yard"       },
-  { hull: "0029", name: "Pier Pressure",   owner: "Ben Cleary",       year: 2020, package: "600 SCI",    hours:  884, lastSync: "38 min ago", lastSyncMin:    38, status: "Stored",     faults: 2, serviceInHrs: 8,   location: "Catalina Mooring"  },
+  { hull: "0046", name: "Showtime",        owner: "Adam Reilly",      year: 2026, package: "Twin 500R",  hours:    4, lastSync: "22 min ago", lastSyncMin:    22, status: "Stored",     faults: 0, serviceInHrs: 96 },
+  { hull: "0045", name: "Beauty Mark",     owner: "Lila Greenfield",  year: 2025, package: "Twin 500R",  hours:   22, lastSync: "Just now",   lastSyncMin:     1, status: "Trailered",  faults: 0, serviceInHrs: 78 },
+  { hull: "0044", name: "Last Call",       owner: "Wesley Tran",      year: 2025, package: "Twin 500R",  hours:   38, lastSync: "18 min ago", lastSyncMin:    18, status: "Stored",     faults: 0, serviceInHrs: 62 },
+  { hull: "0042", name: "Outta Control",   owner: "Jake Brunsell",    year: 2024, package: "Twin 400R",  hours:  188, lastSync: "4 min ago",  lastSyncMin:     4, status: "Stored",     faults: 0, serviceInHrs: 12 },
+  { hull: "0041", name: "Sea Witch",       owner: "Marisol Aguilar",  year: 2024, package: "Twin 400R",  hours:   96, lastSync: "Just now",   lastSyncMin:     0, status: "Running",    faults: 0, serviceInHrs: 4 },
+  { hull: "0040", name: "Velvet Hammer",   owner: "Joshua Park",      year: 2023, package: "Teague 1050",hours:  162, lastSync: "6 min ago",  lastSyncMin:     6, status: "Stored",     faults: 0, serviceInHrs: 38 },
+  { hull: "0039", name: "Salt Therapy",    owner: "Karina Petrov",    year: 2023, package: "Twin 400R",  hours:  218, lastSync: "1 hr ago",   lastSyncMin:    62, status: "Stored",     faults: 0, serviceInHrs: 82 },
+  { hull: "0038", name: "Reel Therapy",    owner: "Daniel Kasper",    year: 2023, package: "600 SCI",    hours:  412, lastSync: "2 hr ago",   lastSyncMin:   124, status: "Stored",     faults: 0, serviceInHrs: 88 },
+  { hull: "0037", name: "Quick Six",       owner: "Audrey Naval",     year: 2022, package: "Twin 400R",  hours:  298, lastSync: "4 hr ago",   lastSyncMin:   240, status: "Stored",     faults: 0, serviceInHrs: 2 },
+  { hull: "0036", name: "Tres Hermanos",   owner: "Hector Vega",      year: 2022, package: "600 SCI",    hours:  488, lastSync: "11 min ago", lastSyncMin:    11, status: "Stored",     faults: 1, serviceInHrs: 24 },
+  { hull: "0035", name: "Holy Diver",      owner: "Sarah Lin",        year: 2022, package: "Teague 1050",hours:  248, lastSync: "3 hr ago",   lastSyncMin:   180, status: "Stored",     faults: 0, serviceInHrs: 56 },
+  { hull: "0034", name: "Reel Estate",     owner: "Patrick Yi",       year: 2021, package: "600 SCI",    hours:  712, lastSync: "2 hr ago",   lastSyncMin:   124, status: "Stored",     faults: 0, serviceInHrs: 14 },
+  { hull: "0033", name: "Big Wake",        owner: "Jorge Mendoza",    year: 2021, package: "600 SCI",    hours:  612, lastSync: "6 days ago", lastSyncMin: 8640,  status: "Offline",    faults: 0, serviceInHrs: 32 },
+  { hull: "0031", name: "Rumrunner",       owner: "Caleb Wexler",     year: 2021, package: "Teague 1050",hours:  524, lastSync: "1 day ago",  lastSyncMin: 1440,  status: "Stored",     faults: 1, serviceInHrs: 18 },
+  { hull: "0030", name: "Free Lunch",      owner: "Greg Stovall",     year: 2020, package: "600 SCI",    hours: 1042, lastSync: "1 week ago", lastSyncMin: 10080, status: "In Service", faults: 0, serviceInHrs: 0 },
+  { hull: "0029", name: "Pier Pressure",   owner: "Ben Cleary",       year: 2020, package: "600 SCI",    hours:  884, lastSync: "38 min ago", lastSyncMin:    38, status: "Stored",     faults: 2, serviceInHrs: 8 },
 ];
 
 HCB.statusPill = function (st) {
@@ -955,7 +1033,7 @@ HCB.renderFleet = function () {
     if (st.status !== "All" && b.status !== st.status) return false;
     if (st.search) {
       const q = st.search.toLowerCase();
-      if (!(b.hull + " " + b.name + " " + b.owner + " " + b.location).toLowerCase().includes(q)) return false;
+      if (!(b.hull + " " + b.name + " " + b.owner + " " + b.package).toLowerCase().includes(q)) return false;
     }
     return true;
   }).sort((a,b) => {
@@ -983,8 +1061,7 @@ HCB.renderFleet = function () {
         <td>${HCB.statusPill(b.status)}</td>
         <td>${HCB.healthCell(b)}</td>
         <td class="num">${b.serviceInHrs === 0 ? '<span class="muted">In shop</span>' : (b.serviceInHrs <= 5 ? `<span class="bad-text">${b.serviceInHrs} hrs</span>` : (b.serviceInHrs <= 25 ? `<span class="warn-text">${b.serviceInHrs} hrs</span>` : `${b.serviceInHrs} hrs`))}</td>
-        <td class="hide-md muted">${b.location}</td>
-        <td class="row-action"><a href="${b.package.includes("Teague") ? "teague.html" : "mercury.html"}" class="row-link">Open</a></td>
+        <td class="row-action"><a href="${b.package.includes("Teague") ? "teague.html" : "mercury.html"}?hull=${b.hull}" class="row-link">Open</a></td>
       </tr>`).join("");
   }
 
