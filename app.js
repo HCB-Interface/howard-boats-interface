@@ -19,19 +19,19 @@ HCB.owner = {
   },
   serviceLog: [
     { date: "Apr 02, 2026", work: "Oil & filter change, spark plugs",
-      shop: "Howard Service — Valencia", hours: 380.4, cost: "$645",
+      shop: "Howard Custom Boats", hours: 380.4, cost: "$645",
       status: { label: "Complete", tone: "good" } },
     { date: "Feb 14, 2026", work: "Annual winterization + hull inspection",
-      shop: "Howard Service — Valencia", hours: 362.0, cost: "$980",
+      shop: "Howard Custom Boats", hours: 362.0, cost: "$980",
       status: { label: "Complete", tone: "good" } },
     { date: "Dec 08, 2025", work: "Impeller replacement",
-      shop: "Lake Castaic Marine", hours: 341.7, cost: "$220",
+      shop: "Absolute Speed and Marine", hours: 341.7, cost: "$220",
       status: { label: "Complete", tone: "good" } },
     { date: "Aug 21, 2025", work: "Prop repair + alignment",
-      shop: "Lake Castaic Marine", hours: 298.1, cost: "$310",
+      shop: "Teague Custom Marine", hours: 298.1, cost: "$310",
       status: { label: "Complete", tone: "good" } },
     { date: "May 04, 2026", work: "100-hr engine inspection",
-      shop: "Howard Service — Valencia", hours: "—", cost: "Est. $425",
+      shop: "Howard Custom Boats", hours: "—", cost: "Est. $425",
       status: { label: "Scheduled", tone: "warn" } },
   ],
   serviceIntervals: [
@@ -48,24 +48,24 @@ HCB.owner = {
   },
   transactions: [
     { date: "Apr 19, 2026", type: "Fuel",    vendor: "Castaic Fuel Dock",       amount: "$285" },
-    { date: "Apr 02, 2026", type: "Service", vendor: "Howard Service — Valencia", amount: "$645" },
+    { date: "Apr 02, 2026", type: "Service", vendor: "Howard Custom Boats", amount: "$645" },
     { date: "Mar 28, 2026", type: "Fuel",    vendor: "Castaic Fuel Dock",       amount: "$240" },
-    { date: "Mar 15, 2026", type: "Storage", vendor: "Howard Yard",              amount: "$350" },
-    { date: "Feb 14, 2026", type: "Service", vendor: "Howard Service — Valencia", amount: "$980" },
+    { date: "Mar 15, 2026", type: "Storage", vendor: "Howard Custom Boats",      amount: "$350" },
+    { date: "Feb 14, 2026", type: "Service", vendor: "Howard Custom Boats", amount: "$980" },
     { date: "Feb 05, 2026", type: "Fuel",    vendor: "Ventura Harbor Fuel",     amount: "$310" },
-    { date: "Jan 28, 2026", type: "Storage", vendor: "Howard Yard",              amount: "$350" },
+    { date: "Jan 28, 2026", type: "Storage", vendor: "Howard Custom Boats",      amount: "$350" },
     { date: "Jan 12, 2026", type: "Fuel",    vendor: "Castaic Fuel Dock",       amount: "$260" },
-    { date: "Jan 04, 2026", type: "Service", vendor: "Lake Castaic Marine",     amount: "$520" },
-    { date: "Dec 28, 2025", type: "Storage", vendor: "Howard Yard",              amount: "$295" },
+    { date: "Jan 04, 2026", type: "Service", vendor: "Absolute Speed and Marine", amount: "$520" },
+    { date: "Dec 28, 2025", type: "Storage", vendor: "Howard Custom Boats",      amount: "$295" },
     { date: "Dec 15, 2025", type: "Fuel",    vendor: "Castaic Fuel Dock",       amount: "$280" },
-    { date: "Dec 08, 2025", type: "Service", vendor: "Lake Castaic Marine",     amount: "$220" },
+    { date: "Dec 08, 2025", type: "Service", vendor: "Absolute Speed and Marine", amount: "$220" },
   ],
   locationHistory: [
-    { label: "Howard Yard (storage)",    time: "Now",                       duration: "3 days" },
+    { label: "Howard Custom Boats (storage)", time: "Now",                       duration: "3 days" },
     { label: "Castaic Lake — East Ramp", time: "Apr 19, 2026 — 14:22",     duration: "4h 10m" },
-    { label: "Howard Yard (storage)",    time: "Apr 14, 2026 — 18:05",     duration: "5 days" },
+    { label: "Howard Custom Boats (storage)", time: "Apr 14, 2026 — 18:05",     duration: "5 days" },
     { label: "Castaic Lake — East Ramp", time: "Apr 14, 2026 — 10:18",     duration: "7h 42m" },
-    { label: "Howard Yard (storage)",    time: "Apr 07, 2026 — 19:40",     duration: "6 days" },
+    { label: "Howard Custom Boats (storage)", time: "Apr 07, 2026 — 19:40",     duration: "6 days" },
   ],
 };
 
@@ -937,7 +937,7 @@ HCB.storageCard = function (s) {
    Data is mocked in-memory; backend swap will replace these objects.
    ============================================================ */
 
-HCB.fleet = [
+HCB.fleet = HCB.fleet || [
   { hull: "0046", name: "Showtime",        owner: "Adam Reilly",      year: 2026, package: "Twin 500R",  hours:    4, lastSync: "22 min ago", lastSyncMin:    22, status: "Stored",     faults: 0, serviceInHrs: 96 },
   { hull: "0045", name: "Beauty Mark",     owner: "Lila Greenfield",  year: 2025, package: "Twin 500R",  hours:   22, lastSync: "Just now",   lastSyncMin:     1, status: "Trailered",  faults: 0, serviceInHrs: 78 },
   { hull: "0044", name: "Last Call",       owner: "Wesley Tran",      year: 2025, package: "Twin 500R",  hours:   38, lastSync: "18 min ago", lastSyncMin:    18, status: "Stored",     faults: 0, serviceInHrs: 62 },
@@ -1351,7 +1351,12 @@ HCB.openAddMaintenance = function () {
       </div>
       <label class="field">
         <span>Shop / who did the work</span>
-        <input name="shop" required placeholder="Howard Service — Valencia" value="Howard Service — Valencia" />
+        <select name="shop" required>
+          <option>Howard Custom Boats</option>
+          <option>Teague Custom Marine</option>
+          <option>Absolute Speed and Marine</option>
+          <option>Other / DIY</option>
+        </select>
       </label>
       <div class="field-row">
         <label class="field">
@@ -1422,9 +1427,10 @@ HCB.openBookService = function () {
         <label class="field">
           <span>Drop-off</span>
           <select name="dropoff">
-            <option>Howard Yard — Valencia</option>
+            <option>Howard Custom Boats</option>
+            <option>Teague Custom Marine</option>
+            <option>Absolute Speed and Marine</option>
             <option>Mobile (yard pickup)</option>
-            <option>Trailer in</option>
           </select>
         </label>
       </div>
@@ -1439,13 +1445,13 @@ HCB.openBookService = function () {
       });
       // Add a "scheduled" line to the log so the booking is visible immediately
       HCB.owner.serviceLog.unshift({
-        date: dateLabel, work: data.type, shop: "Howard Service — Valencia",
+        date: dateLabel, work: data.type, shop: "Howard Custom Boats",
         hours: "—", cost: "Pending", status: { label: "Scheduled", tone: "warn" },
       });
       HCB.persistServiceLog();
       HCB.rerenderServiceLog();
       HCB.toast({ title: "Booking request sent",
-                  body: `${data.type} — ${dateLabel}. Howard Service will confirm.`,
+                  body: `${data.type} — ${dateLabel}. ${data.dropoff} will confirm.`,
                   tone: "good" });
     },
   });
@@ -1613,4 +1619,303 @@ HCB.openBookService = function () {
       },
     });
   });
+})();
+
+/* ======================================================================
+   Sharing & Ownership (added 2026-04-30)
+   - Temporary location shares (with expiration)
+   - Stolen / panic mode (raised reporting cadence + tracking link)
+   - Ownership transfer (pending state until new owner accepts)
+   ====================================================================== */
+
+HCB.sharing = {
+  shares:  HCB.store.get("shares",  []),  // [{id, who, kind, hours, createdAt, expiresAt, link}]
+  stolen:  HCB.store.get("stolen",  null), // null or {since, link, breaches:[]}
+  pendingTransfer: HCB.store.get("pendingTransfer", null), // null or {to, name, sentAt, message}
+};
+
+HCB.persistSharing = function () {
+  HCB.store.set("shares",  HCB.sharing.shares);
+  HCB.store.set("stolen",  HCB.sharing.stolen);
+  HCB.store.set("pendingTransfer", HCB.sharing.pendingTransfer);
+};
+
+HCB.fmtRemaining = function (ms) {
+  if (ms <= 0) return "expired";
+  const min = Math.round(ms / 60000);
+  if (min < 60) return `${min} min remaining`;
+  const hr = Math.round(min / 60);
+  if (hr < 24) return `${hr} hr remaining`;
+  return `${Math.round(hr / 24)} day${Math.round(hr/24)===1?"":"s"} remaining`;
+};
+
+/* ---------- Renderers ---------- */
+HCB.renderSharing = function () {
+  if (!document.getElementById("sharing")) return;
+
+  const list = document.getElementById("share-list");
+  const empty = document.getElementById("share-empty");
+  // Drop any expired shares before rendering
+  const now = Date.now();
+  HCB.sharing.shares = HCB.sharing.shares.filter(s => s.expiresAt > now);
+  HCB.persistSharing();
+
+  if (list) {
+    if (HCB.sharing.shares.length === 0) {
+      list.innerHTML = "";
+      if (empty) empty.style.display = "";
+    } else {
+      if (empty) empty.style.display = "none";
+      list.innerHTML = HCB.sharing.shares.map(s => `
+        <div class="share-row">
+          <div>
+            <div class="who">
+              <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+              ${s.who}
+            </div>
+            <div class="meta">${s.kind} &middot; ${HCB.fmtRemaining(s.expiresAt - now)} &middot; <code>${s.link}</code></div>
+          </div>
+          <div class="actions">
+            <button class="btn-mini" type="button" data-share-copy="${s.id}">Copy link</button>
+            <button class="btn-mini ghost" type="button" data-share-revoke="${s.id}">Revoke</button>
+          </div>
+        </div>`).join("");
+    }
+  }
+
+  // Stolen panel
+  const stolenState = document.getElementById("stolen-state");
+  if (stolenState) {
+    if (HCB.sharing.stolen) {
+      const since = new Date(HCB.sharing.stolen.since);
+      stolenState.className = "stolen-state-active";
+      stolenState.innerHTML = `
+        <div class="stolen-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          This boat is marked stolen
+        </div>
+        <div class="stolen-meta">Active since ${since.toLocaleString()} &middot; reporting every 5 min &middot; tracking link: <code>${HCB.sharing.stolen.link}</code></div>
+        <div class="stolen-actions">
+          <button class="btn-ghost" type="button" id="btn-copy-tracking">Copy tracking link</button>
+          <button class="btn-ghost" type="button" id="btn-resolve-stolen">Boat recovered — turn off</button>
+        </div>`;
+    } else {
+      stolenState.className = "stolen-state-idle";
+      stolenState.innerHTML = `
+        <p class="hint" style="margin:0 0 10px;">If the boat is stolen, switching to panic mode raises the heartbeat to every 5 minutes, sends maximum-priority alerts on every geofence breach, and generates a tracking link you can share with law enforcement.</p>
+        <button class="btn-danger" id="btn-mark-stolen" type="button">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Mark this boat as stolen
+        </button>`;
+    }
+  }
+
+  // Transfer panel
+  const transferState = document.getElementById("transfer-state");
+  if (transferState) {
+    if (HCB.sharing.pendingTransfer) {
+      const t = HCB.sharing.pendingTransfer;
+      const sent = new Date(t.sentAt);
+      transferState.innerHTML = `
+        <div class="transfer-pending">
+          <div class="ttl">Transfer pending</div>
+          <div class="meta">Sent to <strong>${t.name}</strong> &lt;${t.to}&gt; on ${sent.toLocaleDateString()}. They have 7 days to accept. Service history, hours, and configuration will migrate when accepted.</div>
+          <div class="actions">
+            <button class="btn-ghost" type="button" id="btn-resend-transfer">Resend invite</button>
+            <button class="btn-ghost" type="button" id="btn-cancel-transfer">Cancel transfer</button>
+          </div>
+        </div>`;
+    } else {
+      transferState.innerHTML = `
+        <p class="hint" style="margin:0 0 10px;">When you sell the boat, transferring ownership migrates service history, hours, fault history, and gateway configuration to the new owner. Your account is unlinked from the hull when they accept.</p>
+        <button class="btn-ghost" id="btn-begin-transfer" type="button">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Begin ownership transfer
+        </button>`;
+    }
+  }
+};
+
+/* ---------- Modals ---------- */
+HCB.openShareModal = function () {
+  HCB.openModal({
+    title: "Share live location",
+    primaryLabel: "Create share link",
+    bodyHtml: `
+      <label class="field">
+        <span>Share with (name or email)</span>
+        <input name="who" required placeholder="Captain Mike / mike@example.com" />
+      </label>
+      <div class="field-row">
+        <label class="field">
+          <span>What to share</span>
+          <select name="kind">
+            <option>Location only</option>
+            <option>Location + battery state</option>
+            <option>Location + battery + fault alerts</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Duration</span>
+          <select name="duration">
+            <option value="4">4 hours</option>
+            <option value="24" selected>24 hours</option>
+            <option value="72">3 days</option>
+            <option value="168">1 week</option>
+          </select>
+        </label>
+      </div>
+      <p class="hint" style="margin:0;color:var(--text-mute);font-size:12px;">The recipient sees only what you allow, and the link expires automatically. You can revoke it any time.</p>
+    `,
+    onSubmit: data => {
+      const hours = Number(data.duration);
+      const id = "s_" + Math.random().toString(36).slice(2, 9);
+      const token = Math.random().toString(36).slice(2, 10).toUpperCase();
+      HCB.sharing.shares.unshift({
+        id, who: data.who.trim(), kind: data.kind, hours,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + hours * 3600 * 1000,
+        link: `howardboats.com/share/${token}`,
+      });
+      HCB.persistSharing();
+      HCB.renderSharing();
+      HCB.toast({ title: "Share link created",
+                  body: `${data.who.trim()} can view ${data.kind.toLowerCase()} for ${hours} hr.`,
+                  tone: "good" });
+    },
+  });
+};
+
+HCB.openStolenModal = function () {
+  HCB.openModal({
+    title: "Mark this boat as stolen?",
+    primaryLabel: "Activate panic mode",
+    primaryTone: "danger",
+    bodyHtml: `
+      <p style="margin:0;color:var(--text);font-size:13.5px;">Activating stolen mode will:</p>
+      <ul style="margin:4px 0 0 18px;padding:0;color:var(--text-dim);font-size:13px;line-height:1.6;">
+        <li>Raise the gateway heartbeat to every 5 minutes</li>
+        <li>Send maximum-priority alerts on every geofence breach</li>
+        <li>Generate a tracking link you can share with law enforcement</li>
+        <li>Lock service-related actions until you mark the boat recovered</li>
+      </ul>
+      <label class="field" style="margin-top:8px;">
+        <span>Optional: case / report number</span>
+        <input name="caseNo" placeholder="Sheriff case # if you have one" />
+      </label>
+    `,
+    onSubmit: data => {
+      const token = Math.random().toString(36).slice(2, 10).toUpperCase();
+      HCB.sharing.stolen = {
+        since: Date.now(),
+        caseNo: (data.caseNo || "").trim(),
+        link: `howardboats.com/track/${token}`,
+        breaches: [],
+      };
+      HCB.persistSharing();
+      HCB.renderSharing();
+      HCB.renderStolenBanner();
+      HCB.toast({ title: "Panic mode active",
+                  body: "Reporting every 5 min. Tracking link copied to your shares.",
+                  tone: "bad" });
+    },
+  });
+};
+
+HCB.openTransferModal = function () {
+  HCB.openModal({
+    title: "Transfer ownership",
+    primaryLabel: "Send transfer invite",
+    bodyHtml: `
+      <label class="field"><span>New owner — full name</span><input name="name" required placeholder="Jane Doe" /></label>
+      <label class="field"><span>New owner — email</span><input name="to" type="email" required placeholder="jane@example.com" /></label>
+      <label class="field"><span>Optional message</span><textarea name="message" placeholder="Anything you want them to know about the boat"></textarea></label>
+      <p class="hint" style="margin:0;color:var(--text-mute);font-size:12px;">They will receive a one-time link valid for 7 days. When they accept, your account unlinks from this hull and they take over service history, hours, fault log, and gateway config.</p>
+    `,
+    onSubmit: data => {
+      HCB.sharing.pendingTransfer = {
+        to: data.to.trim(), name: data.name.trim(),
+        message: (data.message || "").trim(),
+        sentAt: Date.now(),
+      };
+      HCB.persistSharing();
+      HCB.renderSharing();
+      HCB.toast({ title: "Transfer invite sent",
+                  body: `${data.name.trim()} has 7 days to accept.`, tone: "good" });
+    },
+  });
+};
+
+/* ---------- Banner: persistent stolen indicator on every page ---------- */
+HCB.renderStolenBanner = function () {
+  // Idempotent: remove any existing banner first
+  document.querySelectorAll(".stolen-banner").forEach(b => b.remove());
+  if (!HCB.sharing.stolen) return;
+  const banner = document.createElement("div");
+  banner.className = "stolen-banner";
+  banner.innerHTML = `
+    <span class="pulse-red"></span>
+    <div class="sb-text"><strong>Stolen</strong>This boat is in panic mode &middot; reporting every 5 min &middot; tracking: <code>${HCB.sharing.stolen.link}</code></div>
+    <a href="settings.html#sharing">Manage</a>`;
+  // Insert after the topbar so it's the first thing in the page below the header
+  const topbar = document.querySelector(".topbar");
+  if (topbar && topbar.parentNode) topbar.parentNode.insertBefore(banner, topbar.nextSibling);
+};
+
+/* ---------- Wire up buttons ---------- */
+(function bindSharing() {
+  // Render on load
+  HCB.renderStolenBanner();
+  if (document.getElementById("sharing")) HCB.renderSharing();
+
+  // Delegated click handler for all sharing/transfer buttons (works for re-rendered DOM)
+  document.addEventListener("click", e => {
+    const t = e.target;
+    const closest = sel => t.closest && t.closest(sel);
+
+    if (t.id === "btn-new-share" || closest("#btn-new-share")) HCB.openShareModal();
+    else if (t.id === "btn-mark-stolen" || closest("#btn-mark-stolen")) HCB.openStolenModal();
+    else if (t.id === "btn-begin-transfer" || closest("#btn-begin-transfer")) HCB.openTransferModal();
+    else if (t.id === "btn-resolve-stolen") {
+      HCB.sharing.stolen = null; HCB.persistSharing();
+      HCB.renderSharing(); HCB.renderStolenBanner();
+      HCB.toast({ title: "Stolen mode cleared", body: "Reporting back to normal cadence.", tone: "good" });
+    } else if (t.id === "btn-copy-tracking" && HCB.sharing.stolen) {
+      try { navigator.clipboard.writeText(HCB.sharing.stolen.link); } catch (_) {}
+      HCB.toast({ title: "Link copied", body: HCB.sharing.stolen.link, tone: "good" });
+    } else if (t.id === "btn-cancel-transfer") {
+      HCB.sharing.pendingTransfer = null; HCB.persistSharing(); HCB.renderSharing();
+      HCB.toast({ title: "Transfer canceled", body: "The pending invite has been revoked.", tone: "warn" });
+    } else if (t.id === "btn-resend-transfer" && HCB.sharing.pendingTransfer) {
+      HCB.sharing.pendingTransfer.sentAt = Date.now(); HCB.persistSharing(); HCB.renderSharing();
+      HCB.toast({ title: "Invite resent", body: `Sent again to ${HCB.sharing.pendingTransfer.to}.`, tone: "good" });
+    } else if (t.dataset && t.dataset.shareCopy) {
+      const s = HCB.sharing.shares.find(x => x.id === t.dataset.shareCopy);
+      if (s) {
+        try { navigator.clipboard.writeText(s.link); } catch (_) {}
+        HCB.toast({ title: "Link copied", body: s.link, tone: "good" });
+      }
+    } else if (t.dataset && t.dataset.shareRevoke) {
+      HCB.sharing.shares = HCB.sharing.shares.filter(x => x.id !== t.dataset.shareRevoke);
+      HCB.persistSharing(); HCB.renderSharing();
+      HCB.toast({ title: "Share revoked", body: "Link is no longer active.", tone: "warn" });
+    }
+  });
+})();
+
+/* Hook btn-danger styling into the modal primary button when requested */
+(function patchModalForDanger() {
+  const orig = HCB.openModal;
+  HCB.openModal = function (opts) {
+    const result = orig(opts);
+    if (opts && opts.primaryTone === "danger") {
+      const btn = document.querySelector(".hcb-modal-backdrop.open .hcb-modal-submit") ||
+                  document.querySelector(".hcb-modal-backdrop .hcb-modal-submit");
+      if (btn) {
+        btn.classList.remove("btn-primary");
+        btn.classList.add("btn-danger");
+      }
+    }
+    return result;
+  };
 })();

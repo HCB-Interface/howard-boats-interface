@@ -1884,6 +1884,18 @@ body.theme-teague .engine-badge {
   margin-bottom: 24px;
 }
 .page-hero .hero-inner {
+  /* reset the absolute/flex rules inherited from the dashboard's overlay-hero
+     .hero-inner selector (line ~317) — those were never meant to apply here */
+  position: static;
+  display: block;
+  inset: auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 0;
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 24px;
