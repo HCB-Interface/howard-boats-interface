@@ -2,7 +2,7 @@
 /* Loaded BEFORE app.js so HCB.fleet is populated when bindFleet runs.  */
 window.HCB = window.HCB || {};
 window.HCB.fleet = [
-  {"hull": "0001", "name": "Outta Control", "owner": "Michael Berke", "year": 2007, "package": "Mercury Racing 600 SCI", "hours": 125.2, "lastSync": "4 min ago", "lastSyncMin": 4, "status": "Stored", "faults": 0, "serviceInHrs": 12},
+  {"hull": "0001", "name": "Outta Control", "owner": "Michael Berke", "year": 2007, "package": "Mercury Racing 525", "hours": 125.2, "lastSync": "4 min ago", "lastSyncMin": 4, "status": "Stored", "faults": 0, "serviceInHrs": 12},
   {"hull": "0002", "name": "Hull 0002", "owner": "Carlton Jeter", "year": 2024, "package": "Teague Custom Marine 1050", "hours": 52.0, "lastSync": "6 min ago", "lastSyncMin": 2, "status": "Running", "faults": 1, "serviceInHrs": 20},
   {"hull": "0003", "name": "She Paid", "owner": "Kevin Berke", "year": 2026, "package": "Mercury Racing 600 SCI", "hours": 126.0, "lastSync": "Now", "lastSyncMin": 0, "status": "Trailered", "faults": 0, "serviceInHrs": 0},
   {"hull": "0004", "name": "Write-Off", "owner": "Trason Oehme", "year": 2019, "package": "Mercury Racing 600 SCI", "hours": 250.0, "lastSync": "30 min ago", "lastSyncMin": 30, "status": "In Service", "faults": 2, "serviceInHrs": -10},
