@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annual Report — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: var(--bg); }
+    .ar-shell { max-width: 880px; margin: 32px auto 80px; padding: 0 24px; }
+    .ar-toolbar { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 16px; flex-wrap: wrap; }
+    .ar-paper {
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px 44px;
+      box-shadow: 0 30px 60px rgba(0,0,0,.4);
+    }
+    .ar-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 24px; margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .ar-header .ar-brand {
+      font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+      font-weight: 700; color: var(--accent);
+    }
+    .ar-header h1 { margin: 4px 0 6px 0; font-size: 26px; font-weight: 700; letter-spacing: -.015em; color: var(--text); }
+    .ar-header .ar-sub { color: var(--text-mute); font-size: 13px; }
+    .ar-header .ar-year { font-size: 56px; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); line-height: 1; }
+    .ar-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 24px 0 28px; }
+    .ar-stat { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; background: rgba(255,255,255,.02); }
+    .ar-stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-mute); font-weight: 700; }
+    .ar-stat .val { font-size: 26px; font-weight: 700; letter-spacing: -.01em; color: var(--text); margin-top: 2px; }
+    .ar-stat .val small { font-size: 12px; color: var(--text-mute); font-weight: 500; margin-left: 3px; letter-spacing: 0; }
+    .ar-stat .meta { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+    .ar-section { margin: 28px 0 16px; }
+    .ar-section h2 { margin: 0 0 12px 0; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700; color: var(--text); padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .ar-list { list-style: none; margin: 0; padding: 0; }
+    .ar-list li {
+      display: grid; grid-template-columns: 110px 1fr 130px 90px;
+      gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      font-size: 13px; align-items: center;
+    }
+    .ar-list li:last-child { border-bottom: 0; }
+    .ar-list .ar-date { color: var(--text-mute); font-variant-numeric: tabular-nums; }
+    .ar-list .ar-desc { color: var(--text); font-weight: 500; }
+    .ar-list .ar-shop { color: var(--text-mute); font-size: 12px; }
+    .ar-list .ar-cost { color: var(--text); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+    .ar-split { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; margin-top: 18px; }
+    .ar-bar-row { display: grid; grid-template-columns: 90px 1fr 80px; gap: 10px; align-items: center; padding: 6px 0; font-size: 13px; }
+    .ar-bar-row .lbl { color: var(--text); font-weight: 500; }
+    .ar-bar-row .bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,.05); position: relative; overflow: hidden; }
+    .ar-bar-row .bar > span { display: block; height: 100%; border-radius: 4px; }
+    .ar-bar-row .amt { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); font-weight: 600; }
+    .ar-callout {
+      margin-top: 20px; padding: 16px 18px; border-radius: 10px;
+      background: linear-gradient(180deg, rgba(95,180,214,.10), rgba(95,180,214,.04));
+      border-left: 3px solid var(--accent);
+      font-size: 13px; line-height: 1.55; color: var(--text-dim);
+    }
+    .ar-callout strong { color: var(--text); }
+    .ar-footer {
+      margin-top: 36px; padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap;
+      font-size: 11px; color: var(--text-mute);
+    }
+    .ar-year-pick { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--text-mute); }
+    .ar-year-pick select { background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 5px 10px; font-family: inherit; font-size: 13px; }
+    @media (max-width: 640px) {
+      .ar-shell { margin: 16px auto; padding: 0 12px; }
+      .ar-paper { padding: 22px 18px; }
+      .ar-header { flex-direction: column; gap: 8px; }
+      .ar-header .ar-year { font-size: 36px; }
+      .ar-stat-grid { grid-template-columns: 1fr 1fr; }
+      .ar-list li { grid-template-columns: 1fr auto; gap: 4px; padding: 12px 0; }
+      .ar-list .ar-date { font-size: 11px; }
+      .ar-list .ar-shop { font-size: 11px; grid-column: 1 / -1; }
+      .ar-list .ar-cost { font-size: 13px; }
+      .ar-split { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      .ar-toolbar, .topbar, .mobile-nav, .toast-stack { display: none !important; }
+      .ar-shell { margin: 0; padding: 0; max-width: 100%; }
+      .ar-paper { box-shadow: none !important; border: none !important; background: #fff !important; padding: 24px !important; }
+      .ar-paper, .ar-paper * { color: #000 !important; }
+      .ar-header { border-bottom-color: #000 !important; }
+      .ar-header .ar-brand, .ar-header .ar-year, .ar-stat .val { color: #000 !important; }
+      .ar-stat { background: #f5f5f5 !important; border-color: #ccc !important; }
+      .ar-section h2 { border-bottom-color: #888 !important; }
+      .ar-list li { border-bottom-color: #ccc !important; }
+      .ar-bar-row .bar { background: #ddd !important; }
+      .ar-callout { background: #f0f7fa !important; border-left-color: #5fb4d6 !important; color: #000 !important; }
+      .ar-footer { border-top-color: #ccc !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ar-shell">
+    <div class="ar-toolbar">
+      <div class="ar-year-pick">
+        Year:
+        <select id="ar-year">
+          <option value="2025" selected>2025</option>
+          <option value="2026">2026 (year-to-date)</option>
+        </select>
+      </div>
+      <button class="btn-ghost" onclick="window.print()">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save PDF
+      </button>
+      <a class="btn-ghost" href="index.html">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to dashboard
+      </a>
+    </div>
+    <div class="ar-paper" id="ar-paper"></div>
+  </div>
+  <div class="toast-stack" id="toast-stack"></div>
+  <script src="app.js"></script>
+  <script src="annual-report-data.js"></script>
+</body>
+</html>

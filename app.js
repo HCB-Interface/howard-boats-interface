@@ -1919,3 +1919,191 @@ HCB.renderStolenBanner = function () {
     return result;
   };
 })();
+
+/* ======================================================================
+   Build sheet renderer (added 2026-04-30)
+   Reads from window.HCB.buildSheets (loaded by data/build-sheets.js).
+   Renders into #build-sheet-root inside Settings → Build sheet tab.
+   Demo wiring: Hull 0042 = "288 Sport Deck" build.
+   ====================================================================== */
+
+HCB.boatBuildKey  = "288-sport-deck"; // would be looked up by hull in production
+HCB.boatBuildDate = "May 14, 2024";
+
+HCB.fmtUSD = function (v) {
+  if (v == null || v === "") return "—";
+  if (typeof v === "string") {
+    var lc = v.toLowerCase();
+    if (lc === "std") return "std";
+    if (lc === "inc" || lc === "incl") return "incl";
+    if (lc.indexOf("price") === 0) return "POR";
+    return v;
+  }
+  if (typeof v === "number") return "$" + v.toLocaleString();
+  return String(v);
+};
+
+HCB.renderBuildSheet = function () {
+  var root = document.getElementById("build-sheet-root");
+  if (!root) return;
+  var builds = window.HCB && window.HCB.buildSheets;
+  if (!builds) {
+    root.innerHTML = '<div class="hint">Build sheet data not loaded.</div>';
+    return;
+  }
+  var build = builds[HCB.boatBuildKey] || Object.values(builds)[0];
+  if (!build) {
+    root.innerHTML = '<div class="hint">No build sheet on file for this hull.</div>';
+    return;
+  }
+
+  var total = build.grandTotal != null ? build.grandTotal :
+    build.sections.reduce(function (acc, s) { return acc + (s.sectionTotal || 0); }, 0);
+  var totalSelected   = build.sections.reduce(function (a, s) { return a + s.items.filter(function (i) { return  i.selected; }).length; }, 0);
+  var totalUnselected = build.sections.reduce(function (a, s) { return a + s.items.filter(function (i) { return !i.selected; }).length; }, 0);
+
+  var showAll = HCB.store.get("buildShowAll", false);
+
+  var sectionsHtml = build.sections.map(function (sec) {
+    var items = showAll ? sec.items : sec.items.filter(function (i) { return i.selected; });
+    if (items.length === 0) return "";
+    var rows = items.map(function (it) {
+      var cls = it.selected ? "selected" : "unselected";
+      var qty = (it.qty != null && it.qty !== "" && it.qty !== 1)
+        ? '<span class="qty">×' + it.qty + '</span>'
+        : "";
+      var priceShown = it.selected
+        ? HCB.fmtUSD(it.customerPrice || it.retail)
+        : HCB.fmtUSD(it.retail);
+      return [
+        '<li class="' + cls + '">',
+          '<span class="check"></span>',
+          '<span class="desc">' + it.description + qty + '</span>',
+          '<span class="price">' + priceShown + '</span>',
+        '</li>'
+      ].join("");
+    }).join("");
+    return [
+      '<div class="build-section">',
+        '<div class="build-section-head">',
+          '<h3>' + sec.name + '</h3>',
+          '<span class="bs-total"><small>section</small>' + HCB.fmtUSD(sec.sectionTotal) + '</span>',
+        '</div>',
+        '<ul class="build-items">' + rows + '</ul>',
+      '</div>'
+    ].join("");
+  }).join("");
+
+  root.innerHTML = [
+    '<div class="build-hero">',
+      '<div>',
+        '<div class="bh-model">' + build.modelLabel + '</div>',
+        '<div class="bh-meta">Hull ' + HCB.owner.boat.hull + ' &middot; delivered ' + HCB.boatBuildDate + ' &middot; ' + totalSelected + ' options on this build</div>',
+      '</div>',
+      '<div class="bh-totals">',
+        '<div class="bh-grand-label">As built</div>',
+        '<div class="bh-grand">' + HCB.fmtUSD(total) + '</div>',
+      '</div>',
+    '</div>',
+    '<div class="build-toggle-row">',
+      '<label><input type="checkbox" id="bs-show-all" ' + (showAll ? "checked" : "") + '/>Show options that weren\'t selected (' + totalUnselected + ')</label>',
+      '<span class="pill">Auto-populated from your delivery checkmark sheet</span>',
+    '</div>',
+    sectionsHtml
+  ].join("");
+
+  var cb = document.getElementById("bs-show-all");
+  if (cb) cb.addEventListener("change", function () {
+    HCB.store.set("buildShowAll", cb.checked);
+    HCB.renderBuildSheet();
+  });
+};
+
+(function bindBuildSheet() {
+  if (!document.getElementById("build-sheet-root")) return;
+  HCB.renderBuildSheet();
+
+  var printBtn = document.getElementById("btn-print-build");
+  if (printBtn) printBtn.addEventListener("click", function () {
+    var tab = document.querySelector('[data-tab="build"]');
+    if (tab) tab.click();
+    setTimeout(function () { window.print(); }, 80);
+  });
+})();
+
+/* ======================================================================
+   Delivery baseline (added 2026-04-30)
+   Renders the recorded "day one" performance numbers next to the most
+   recent run. Big pitch hook: shows owners exactly how their engines are
+   aging. Demoed on Mercury and Teague pages.
+   ====================================================================== */
+
+HCB.deliveryBaseline = {
+  mercury: {
+    deliveryDate: "May 14, 2024",
+    metrics: [
+      { key: "topMph",     label: "Top speed",         unit: "mph", baseline: 84.2,  current: 81.6, higherIsBetter: true,  precision: 1 },
+      { key: "peakRpm",    label: "Peak RPM",          unit: "rpm", baseline: 6400,  current: 6320, higherIsBetter: true,  precision: 0 },
+      { key: "fuelGph",    label: "Fuel @ WOT",        unit: "gph", baseline: 92.0,  current: 96.4, higherIsBetter: false, precision: 1 },
+      { key: "oilPsi",     label: "Oil pressure",      unit: "psi", baseline: 64.0,  current: 61.2, higherIsBetter: true,  precision: 1 },
+      { key: "coolantF",   label: "Coolant @ WOT",     unit: "°F",  baseline: 178,   current: 184,  higherIsBetter: false, precision: 0 },
+      { key: "0to30",      label: "0–30 mph",          unit: "sec", baseline: 4.1,   current: 4.4,  higherIsBetter: false, precision: 1 },
+    ],
+  },
+  teague: {
+    deliveryDate: "Mar 02, 2024",
+    metrics: [
+      { key: "topMph",     label: "Top speed",         unit: "mph", baseline: 102.8, current: 99.4, higherIsBetter: true,  precision: 1 },
+      { key: "peakRpm",    label: "Peak RPM",          unit: "rpm", baseline: 5800,  current: 5740, higherIsBetter: true,  precision: 0 },
+      { key: "oilPsi",     label: "Oil pressure",      unit: "psi", baseline: 78,    current: 74,   higherIsBetter: true,  precision: 0 },
+      { key: "coolantF",   label: "Coolant @ WOT",     unit: "°F",  baseline: 192,   current: 198,  higherIsBetter: false, precision: 0 },
+      { key: "egtBank",    label: "EGT Δ port/stbd",   unit: "°F",  baseline: 42,    current: 58,   higherIsBetter: false, precision: 0 },
+    ],
+  },
+};
+
+HCB.renderDeliveryBaseline = function () {
+  var root = document.getElementById("delivery-baseline");
+  if (!root) return;
+  var which = root.getAttribute("data-engine") || "mercury";
+  var data = HCB.deliveryBaseline[which];
+  if (!data) return;
+
+  var rows = data.metrics.map(function (m) {
+    var delta = m.current - m.baseline;
+    var pct = m.baseline === 0 ? 0 : (delta / m.baseline) * 100;
+    var betterDown = !m.higherIsBetter;
+    var isBetter = betterDown ? delta < 0 : delta > 0;
+    var isWorse  = betterDown ? delta > 0 : delta < 0;
+    var tone = "muted";
+    if (Math.abs(pct) < 1.5) tone = "muted";
+    else if (isBetter) tone = "good";
+    else if (isWorse)  tone = (Math.abs(pct) >= 5 ? "warn" : "muted");
+
+    var arrow = delta > 0 ? "▲" : (delta < 0 ? "▼" : "");
+    var fmt = function (v) { return Number(v).toFixed(m.precision); };
+    var deltaText = (delta > 0 ? "+" : "") + fmt(delta) + " " + m.unit + "  (" + (pct > 0 ? "+" : "") + pct.toFixed(1) + "%)";
+    return [
+      '<div class="bl-row tone-' + tone + '">',
+        '<div class="bl-label">' + m.label + '</div>',
+        '<div class="bl-pair">',
+          '<div class="bl-cell"><span class="bl-cap">Delivery</span><span class="bl-val">' + fmt(m.baseline) + '<span class="bl-unit">' + m.unit + '</span></span></div>',
+          '<div class="bl-cell"><span class="bl-cap">Last run</span><span class="bl-val">' + fmt(m.current) + '<span class="bl-unit">' + m.unit + '</span></span></div>',
+        '</div>',
+        '<div class="bl-delta"><span class="bl-arrow">' + arrow + '</span>' + deltaText + '</div>',
+      '</div>'
+    ].join("");
+  }).join("");
+
+  root.innerHTML = [
+    '<div class="bl-head">',
+      '<div><strong>Recorded at delivery</strong> &middot; ' + data.deliveryDate + ' &middot; Howard yard sea-trial</div>',
+      '<div class="bl-legend">Green = trending equal-or-better. Yellow = drifting beyond 5%.</div>',
+    '</div>',
+    '<div class="bl-grid">' + rows + '</div>'
+  ].join("");
+};
+
+(function bindDeliveryBaseline() {
+  if (document.getElementById("delivery-baseline")) HCB.renderDeliveryBaseline();
+})();

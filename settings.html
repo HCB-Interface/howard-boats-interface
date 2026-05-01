@@ -64,6 +64,10 @@
         <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
         Account
       </a>
+      <a href="#build" data-tab="build">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M9 2h6l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>
+        Build sheet
+      </a>
       <a href="#sharing" data-tab="sharing">
         <svg class="ico" viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
         Sharing &amp; ownership
@@ -237,6 +241,22 @@
         </div>
       </article>
 
+      <article class="settings-section" id="build" data-section="build" hidden>
+        <header class="section-head" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <h2>Build sheet</h2>
+            <p>Every option, every line item, every dollar — auto-populated from your delivery checkmark sheet. This is your boat&rsquo;s permanent build of record.</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-ghost" type="button" id="btn-print-build" title="Open print-ready view">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Print / Save PDF
+            </button>
+          </div>
+        </header>
+        <div id="build-sheet-root"></div>
+      </article>
+
       <article class="settings-section" id="sharing" data-section="sharing" hidden>
         <header class="section-head">
           <h2>Sharing &amp; ownership</h2>
@@ -315,6 +335,7 @@
   </nav>
 
   <div class="toast-stack" id="toast-stack"></div>
+  <script src="data/build-sheets.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

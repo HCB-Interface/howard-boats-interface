@@ -107,6 +107,27 @@
 
     <!-- Receipts -->
     <div class="section-title">
+      <h2>Annual report</h2>
+      <div class="actions-row">
+        <a class="btn btn-ghost" href="annual-report.html?year=2025" target="_blank" rel="noopener">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+          View 2025 report
+        </a>
+        <a class="btn btn-primary" href="annual-report.html?year=2026" target="_blank" rel="noopener">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+          2026 year-to-date
+        </a>
+      </div>
+    </div>
+    <div class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;">
+      <div>
+        <strong style="color:var(--text);font-size:14px;">State of the Boat</strong>
+        <div style="color:var(--text-mute);font-size:12.5px;margin-top:2px;">Auto-generated end-of-year summary &mdash; hours run, fuel, services, faults, peaks, expenses. Print or save as PDF.</div>
+      </div>
+      <span class="pill good"><span class="dot"></span> Auto-generated annually</span>
+    </div>
+
+    <div class="section-title">
       <h2>Receipts</h2>
       <a href="#" id="btn-view-all-receipts">View all &rarr;</a>
     </div>
@@ -218,11 +239,4 @@
       ["dragleave","drop"].forEach(ev => up.addEventListener(ev, (e) => {
         e.preventDefault(); up.classList.remove("dragover");
       }));
-      up.addEventListener("drop", (e) => {
-        const f = e.dataTransfer?.files?.[0];
-        if (f) HCB.toast({ title: "Receipt uploaded", body: `${f.name} attached to your records.`, tone: "good" });
-      });
-    }
-  </script>
-</body>
-</html>
+      up.addEventListener("dr
