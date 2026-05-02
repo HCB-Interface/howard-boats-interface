@@ -3262,50 +3262,74 @@ body.theme-teague .engine-badge {
 }
 
 /* ==========================================================================
-   TOPBAR PHONE OVERFLOW FIX (added 2026-04-30)
-   The owner reported having to scroll right to see notifications/settings.
-   Compress the right cluster on narrow viewports.
+   TOPBAR — FLUID RESPONSIVE (added 2026-04-30)
+   Replaces breakpoint-stacked rules with clamp()-based fluid sizing.
+   Padding, gaps, fonts, and icon sizes scale continuously with viewport
+   width instead of jumping at fixed points. Two media queries remain only
+   to handle structural decisions (hide wordmark / hide bell) where shrinking
+   alone isn't enough.
    ========================================================================== */
-@media (max-width: 640px) {
-  /* Hide the wordmark — keep just the logo image, more compact */
-  .topbar .brand-text { display: none; }
-  .topbar .brand .brand-mark { display: none; }
-  .brand-logo-img { height: 24px; }
 
-  /* Tighten the topbar padding overall */
-  .topbar { padding: 8px 12px; gap: 8px; }
-
-  /* User chip: shrink, drop low-priority icons */
-  .topbar .user-chip {
-    padding: 3px 6px;
-    gap: 6px;
-    border: 0;
-    background: transparent;
-  }
-  .topbar .user-chip .avatar { width: 26px; height: 26px; font-size: 11px; }
-
-  /* Role toggle: icon-only, no "Staff" label */
-  .topbar .role-toggle {
-    padding: 6px 8px;
-    border: 1px solid var(--border, rgba(255,255,255,.08));
-    gap: 0;
-  }
-  .topbar .role-toggle span { display: none; }
-
-  /* Settings gear — keep but tighten */
-  .topbar .user-chip > a[title="Settings"] { padding: 0 4px !important; }
-
-  /* The bell after the avatar/username was the overflow culprit.
-     Drop it on phones — the dashboard already surfaces alerts via toasts. */
-  .topbar .user-chip > a[title="Notifications"] { display: none !important; }
+/* Fluid base — applies at every size. clamp(min, preferred, max). */
+.topbar {
+  padding: clamp(8px, 1.6vw, 14px) clamp(12px, 2vw, 32px);
+  gap: clamp(6px, 1vw, 16px);
 }
 
-@media (max-width: 380px) {
-  /* Even tighter on tiny phones */
-  .topbar { padding: 6px 10px; }
-  .topbar .user-chip { gap: 4px; }
-  .topbar .user-chip .avatar { width: 22px; height: 22px; font-size: 10px; }
-  .topbar .role-toggle { padding: 5px 6px; }
-  .topbar .role-toggle .ico { width: 13px; height: 13px; }
-  .brand-logo-img { height: 20px; }
+/* Brand block: allowed to shrink. min-width:0 lets a flex child go below
+   its content width so the wordmark can ellipsis instead of pushing siblings. */
+.topbar .brand {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+.brand-logo-img { height: clamp(20px, 3.4vw, 28px); }
+.brand-text {
+  font-size: clamp(10px, 1.4vw, 13px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* User chip cluster: doesn't shrink (these controls must stay tappable),
+   but its internal padding/gaps/icon sizes do scale fluidly. */
+.topbar .user-chip {
+  flex: 0 0 auto;
+  padding: clamp(3px, .8vw, 6px) clamp(6px, 1.2vw, 14px) clamp(3px, .8vw, 6px) clamp(8px, 1.4vw, 14px);
+  gap: clamp(4px, 1vw, 10px);
+  font-size: clamp(11px, 1.4vw, 13px);
+}
+.topbar .user-chip .avatar {
+  width: clamp(22px, 3.4vw, 28px);
+  height: clamp(22px, 3.4vw, 28px);
+  font-size: clamp(10px, 1.3vw, 12px);
+}
+.topbar .role-toggle {
+  padding: clamp(5px, 1vw, 8px) clamp(8px, 1.4vw, 14px);
+}
+.topbar .role-toggle .ico,
+.topbar .user-chip a .ico {
+  width: clamp(13px, 1.8vw, 16px);
+  height: clamp(13px, 1.8vw, 16px);
+}
+
+/* Two remaining breakpoints handle layout DECISIONS that fluid sizing can't —
+   when items become useless or duplicative below a certain width. */
+
+/* Below 640px: drop the wordmark (logo is enough) and the username label
+   (avatar is enough). Hide the desktop nav (replaced by bottom .mobile-nav). */
+@media (max-width: 640px) {
+  .nav { display: none; }
+  .topbar .brand-text { display: none; }
+  .topbar .brand .brand-mark { display: none; }
+  .topbar .user-chip #user-name { display: none; }
+  .topbar .user-chip { border: 0; background: transparent; }
+  .topbar .role-toggle span { display: none; }       /* icon-only Staff toggle */
+  .topbar .user-chip > a[title="Settings"] { padding: 0 4px !important; }
+}
+
+/* Below 480px: drop the standalone Notifications bell — toast popups
+   surface alerts already, and the bell was the overflow culprit. */
+@media (max-width: 480px) {
+  .topbar .user-chip > a[title="Notifications"] { display: none !important; }
 }
