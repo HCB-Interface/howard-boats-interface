@@ -433,7 +433,7 @@ button { font-family: inherit; }
   .container { padding: 18px 14px 96px; }
   .topbar { padding: 10px 14px; }
   .topbar .user-chip { padding: 4px 4px 4px 10px; font-size: 12px; }
-  .topbar .user-chip #user-name { display: none; }
+  .topbar .user-chip > span { display: none; }   /* hides 'Jake Brunsell' on owner pages AND 'Howard Staff' on fleet page */
   .brand-logo-img { height: 22px; }
   .brand-text { font-size: 11px; letter-spacing: 0.18em; }
   .nav { display: none; }
@@ -3322,7 +3322,7 @@ body.theme-teague .engine-badge {
   .nav { display: none; }
   .topbar .brand-text { display: none; }
   .topbar .brand .brand-mark { display: none; }
-  .topbar .user-chip #user-name { display: none; }
+  .topbar .user-chip > span { display: none; }   /* hides 'Jake Brunsell' on owner pages AND 'Howard Staff' on fleet page */
   .topbar .user-chip { border: 0; background: transparent; }
   .topbar .role-toggle span { display: none; }       /* icon-only Staff toggle */
   .topbar .user-chip > a[title="Settings"] { padding: 0 4px !important; }
