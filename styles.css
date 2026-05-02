@@ -3260,3 +3260,52 @@ body.theme-teague .engine-badge {
   #delivery-baseline .bl-grid { grid-template-columns: 1fr; }
   #delivery-baseline .bl-val { font-size: 16px; }
 }
+
+/* ==========================================================================
+   TOPBAR PHONE OVERFLOW FIX (added 2026-04-30)
+   The owner reported having to scroll right to see notifications/settings.
+   Compress the right cluster on narrow viewports.
+   ========================================================================== */
+@media (max-width: 640px) {
+  /* Hide the wordmark — keep just the logo image, more compact */
+  .topbar .brand-text { display: none; }
+  .topbar .brand .brand-mark { display: none; }
+  .brand-logo-img { height: 24px; }
+
+  /* Tighten the topbar padding overall */
+  .topbar { padding: 8px 12px; gap: 8px; }
+
+  /* User chip: shrink, drop low-priority icons */
+  .topbar .user-chip {
+    padding: 3px 6px;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+  }
+  .topbar .user-chip .avatar { width: 26px; height: 26px; font-size: 11px; }
+
+  /* Role toggle: icon-only, no "Staff" label */
+  .topbar .role-toggle {
+    padding: 6px 8px;
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    gap: 0;
+  }
+  .topbar .role-toggle span { display: none; }
+
+  /* Settings gear — keep but tighten */
+  .topbar .user-chip > a[title="Settings"] { padding: 0 4px !important; }
+
+  /* The bell after the avatar/username was the overflow culprit.
+     Drop it on phones — the dashboard already surfaces alerts via toasts. */
+  .topbar .user-chip > a[title="Notifications"] { display: none !important; }
+}
+
+@media (max-width: 380px) {
+  /* Even tighter on tiny phones */
+  .topbar { padding: 6px 10px; }
+  .topbar .user-chip { gap: 4px; }
+  .topbar .user-chip .avatar { width: 22px; height: 22px; font-size: 10px; }
+  .topbar .role-toggle { padding: 5px 6px; }
+  .topbar .role-toggle .ico { width: 13px; height: 13px; }
+  .brand-logo-img { height: 20px; }
+}
