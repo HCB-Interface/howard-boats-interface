@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Season Recap — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .recap-stage {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+    .recap-hero {
+      text-align: center;
+      padding: 64px 24px 48px;
+      background: radial-gradient(900px 500px at 50% 20%, rgba(63,182,255,0.18) 0%, transparent 70%);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .recap-hero .eyebrow {
+      font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+    }
+    .recap-hero h1 {
+      font-size: clamp(40px, 7vw, 84px);
+      font-weight: 800;
+      line-height: 1;
+      margin: 16px 0 12px;
+      background: linear-gradient(135deg, #ecf0f3 0%, #3fb6ff 65%, #1a94e8 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .recap-hero .hull {
+      font-size: 16px; color: var(--text-dim); margin-top: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .recap-section {
+      margin-top: 56px;
+      padding: 48px 36px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      position: relative; overflow: hidden;
+    }
+    .recap-section .section-eyebrow {
+      font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--text-mute); font-weight: 600; margin-bottom: 14px;
+    }
+    .recap-section h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      line-height: 1.05;
+      margin: 0 0 28px;
+      letter-spacing: -0.01em;
+    }
+
+    /* Section 1 — big numbers */
+    .by-the-numbers {
+      background: linear-gradient(135deg, #1a2c3d 0%, #0e1a26 100%);
+    }
+    .big-numbers-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    }
+    .big-num {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .big-num .label {
+      font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-mute);
+    }
+    .big-num .value {
+      font-size: clamp(48px, 6vw, 80px);
+      font-weight: 800; line-height: 0.95;
+      color: var(--text); font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+    .big-num .value .unit {
+      font-size: 0.4em; color: var(--text-dim); margin-left: 4px; font-weight: 500;
+    }
+    .big-num .sub {
+      font-size: 13px; color: var(--text-dim);
+    }
+
+    /* Section 2 — fastest run */
+    .fastest {
+      background: linear-gradient(135deg, #2d1530 0%, #1a0d20 100%);
+      border-color: #4a2645;
+    }
+    .fastest .hero-speed {
+      display: flex; align-items: baseline; gap: 18px; margin: 16px 0 8px;
+    }
+    .fastest .speed-number {
+      font-size: clamp(96px, 14vw, 180px);
+      font-weight: 900; line-height: 0.85;
+      background: linear-gradient(135deg, #ff7a92 0%, #ff5a5f 50%, #ff3a40 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: -0.04em;
+    }
+    .fastest .speed-unit {
+      font-size: 28px; color: var(--text-dim); font-weight: 500;
+    }
+    .fastest-meta {
+      display: flex; flex-wrap: wrap; gap: 28px 40px; margin-top: 16px;
+      padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .fastest-meta div { display: flex; flex-direction: column; gap: 4px; }
+    .fastest-meta .lbl { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-mute); }
+    .fastest-meta .val { font-size: 22px; font-weight: 600; }
+
+    /* Section 3 — favorite waters */
+    .waters {
+      background: linear-gradient(135deg, #0f2d2e 0%, #061a1c 100%);
+      border-color: #1c3f3f;
+    }
+    .water-list { display: flex; flex-direction: column; gap: 18px; }
+    .water-item {
+      display: grid; grid-template-columns: 60px 1fr auto; gap: 20px; align-items: center;
+      padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .water-item:last-child { border-bottom: none; }
+    .water-rank {
+      font-size: 48px; font-weight: 800; color: var(--accent);
+      line-height: 1; font-variant-numeric: tabular-nums;
+    }
+    .water-name { font-size: 22px; font-weight: 600; }
+    .water-detail { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+    .water-bar-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 180px; align-items: flex-end; }
+    .water-bar { width: 180px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+    .water-bar .fill { height: 100%; background: linear-gradient(90deg, #3ddc97, #3fb6ff); }
+    .water-bar-label { font-size: 12px; color: var(--text-mute); }
+
+    /* Section 4 — engine highlights */
+    .engines {
+      background: linear-gradient(135deg, #2c1f0e 0%, #1a1208 100%);
+      border-color: #4a3318;
+    }
+    .engine-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+    .engine-card {
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm); padding: 22px;
+    }
+    .engine-card .stat-title { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 12px; }
+    .engine-card .stat-big {
+      font-size: 40px; font-weight: 800; color: #ffb648;
+      font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .engine-card .stat-big .unit { font-size: 0.4em; color: var(--text-dim); margin-left: 4px; font-weight: 500; }
+    .engine-card .stat-context { margin-top: 12px; font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+    /* Section 5 — vs last year */
+    .vs-last {
+      background: linear-gradient(135deg, #1f1a2c 0%, #110d1a 100%);
+      border-color: #312547;
+    }
+    .vs-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+    }
+    .vs-item {
+      background: rgba(0,0,0,0.3);
+      border-radius: var(--radius-sm);
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .vs-item .lbl { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-mute); }
+    .vs-item .delta {
+      font-size: 36px; font-weight: 800; margin-top: 8px;
+      font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .vs-item.up .delta { color: var(--good); }
+    .vs-item.down .delta { color: var(--bad); }
+    .vs-item.flat .delta { color: var(--text-dim); }
+    .vs-item .context { font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+
+    /* Section 6 — share card */
+    .share {
+      background: linear-gradient(135deg, #0d1a2c 0%, #050d1a 100%);
+      border-color: #1a2f4a;
+      text-align: center;
+    }
+    .share-canvas-wrap {
+      max-width: 540px; margin: 0 auto 28px;
+      background: #000; border-radius: 18px; overflow: hidden;
+      border: 1px solid rgba(63,182,255,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(63,182,255,0.15);
+    }
+    #share-canvas { display: block; width: 100%; height: auto; }
+    .share-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .share-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #001220;
+      padding: 12px 22px; border-radius: 999px;
+      font-weight: 600; font-size: 14px;
+      border: none; cursor: pointer;
+      transition: all .15s ease;
+    }
+    .share-btn:hover { background: var(--accent-strong); color: #fff; transform: translateY(-1px); }
+    .share-btn.secondary { background: var(--bg-elev-3); color: var(--text); border: 1px solid var(--line); }
+    .share-btn.secondary:hover { background: var(--bg-elev-2); }
+    .share-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    @media (max-width: 760px) {
+      .big-numbers-grid, .vs-grid { grid-template-columns: repeat(2, 1fr); }
+      .engine-grid { grid-template-columns: 1fr; }
+      .recap-section { padding: 32px 22px; margin-top: 36px; }
+      .water-item { grid-template-columns: 40px 1fr; }
+      .water-bar-wrap { grid-column: 1 / -1; align-items: flex-start; padding-top: 8px; }
+      .water-bar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="replay.html">Replay</a>
+      <a href="recap.html" class="active">Season</a>
+      <a href="alerts.html">Alerts</a>
+      <a href="mercury.html">Mercury</a>
+      <a href="teague.html">Teague</a>
+      <a href="service.html">Service</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <a href="fleet.html" class="role-toggle" title="Howard staff fleet view">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+        <span>Staff</span>
+      </a>
+      <a href="settings.html" title="Settings" style="color:var(--text-mute);padding:0 8px;">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </a>
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+    </div>
+  </header>
+
+  <section class="recap-hero">
+    <div class="eyebrow">Your Season · 2026</div>
+    <h1>A Good One.</h1>
+    <div class="hull">Hull No. 042 &middot; &ldquo;Outta Control&rdquo; &middot; 28&prime; Howard Custom · Twin Mercury Racing 400R</div>
+  </section>
+
+  <main class="recap-stage">
+    <!-- Section 1: By the numbers -->
+    <section class="recap-section by-the-numbers">
+      <div class="section-eyebrow">By the numbers</div>
+      <h2>You ran hard this season.</h2>
+      <div class="big-numbers-grid">
+        <div class="big-num">
+          <span class="label">Hours on the water</span>
+          <span class="value">47.2<span class="unit">hrs</span></span>
+          <span class="sub">across 23 trips since opener</span>
+        </div>
+        <div class="big-num">
+          <span class="label">Distance covered</span>
+          <span class="value">412<span class="unit">nm</span></span>
+          <span class="sub">most of it not at idle</span>
+        </div>
+        <div class="big-num">
+          <span class="label">Fuel burned</span>
+          <span class="value">612<span class="unit">gal</span></span>
+          <span class="sub">$3,180 at this season's avg</span>
+        </div>
+        <div class="big-num">
+          <span class="label">Days out</span>
+          <span class="value">23</span>
+          <span class="sub">8 with guests aboard</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Fastest run -->
+    <section class="recap-section fastest">
+      <div class="section-eyebrow">Fastest run of the season</div>
+      <h2>You hit a new personal best.</h2>
+      <div class="hero-speed">
+        <div class="speed-number">98<span style="font-size:0.45em;vertical-align:0.35em;">.4</span></div>
+        <div class="speed-unit">mph</div>
+      </div>
+      <p style="color:var(--text-dim); font-size:16px; max-width:520px; line-height:1.6; margin-top:8px;">
+        April 22, on glass water just south of Pittsburg Point. Twin 400Rs at 6,020 RPM. Best you've ever pulled in this boat — 3.2 mph faster than last year's peak.
+      </p>
+      <div class="fastest-meta">
+        <div><span class="lbl">Date</span><span class="val">April 22, 2026</span></div>
+        <div><span class="lbl">Location</span><span class="val">Lake Havasu</span></div>
+        <div><span class="lbl">Peak RPM</span><span class="val">6,020</span></div>
+        <div><span class="lbl">Water temp</span><span class="val">73°F</span></div>
+        <div><span class="lbl">Conditions</span><span class="val">Glass · 2mph wind</span></div>
+      </div>
+    </section>
+
+    <!-- Section 3: Favorite waters -->
+    <section class="recap-section waters">
+      <div class="section-eyebrow">Where you ran</div>
+      <h2>Your home water this year was Havasu.</h2>
+      <div class="water-list">
+        <div class="water-item">
+          <div class="water-rank">1</div>
+          <div>
+            <div class="water-name">Lake Havasu, AZ</div>
+            <div class="water-detail">14 trips · 26.3 hours · 248 nm</div>
+          </div>
+          <div class="water-bar-wrap">
+            <div class="water-bar"><div class="fill" style="width:100%"></div></div>
+            <div class="water-bar-label">60% of season</div>
+          </div>
+        </div>
+        <div class="water-item">
+          <div class="water-rank">2</div>
+          <div>
+            <div class="water-name">Lake Mead, NV</div>
+            <div class="water-detail">5 trips · 12.1 hours · 98 nm</div>
+          </div>
+          <div class="water-bar-wrap">
+            <div class="water-bar"><div class="fill" style="width:46%"></div></div>
+            <div class="water-bar-label">26% of season</div>
+          </div>
+        </div>
+        <div class="water-item">
+          <div class="water-rank">3</div>
+          <div>
+            <div class="water-name">Colorado River · Parker Strip</div>
+            <div class="water-detail">4 trips · 8.8 hours · 66 nm</div>
+          </div>
+          <div class="water-bar-wrap">
+            <div class="water-bar"><div class="fill" style="width:34%"></div></div>
+            <div class="water-bar-label">14% of season</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Engine highlights -->
+    <section class="recap-section engines">
+      <div class="section-eyebrow">Engine highlights</div>
+      <h2>Both 400Rs ran clean.</h2>
+      <div class="engine-grid">
+        <div class="engine-card">
+          <div class="stat-title">Highest RPM pulled</div>
+          <div class="stat-big">6,020</div>
+          <div class="stat-context">Stbd engine, April 22. 80 RPM under redline. You ran WOT on 17 trips this season.</div>
+        </div>
+        <div class="engine-card">
+          <div class="stat-title">Peak coolant temp</div>
+          <div class="stat-big">168<span class="unit">°F</span></div>
+          <div class="stat-context">Well inside the 195°F operating window. Cooling system is healthy.</div>
+        </div>
+        <div class="engine-card">
+          <div class="stat-title">Fault codes captured</div>
+          <div class="stat-big">2</div>
+          <div class="stat-context">Both cleared — P0500 (intermittent VSS) on March 2, resolved at next sync.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: vs Last Year -->
+    <section class="recap-section vs-last">
+      <div class="section-eyebrow">Compared to 2025</div>
+      <h2>You used the boat more — and ran it harder.</h2>
+      <div class="vs-grid">
+        <div class="vs-item up">
+          <div class="lbl">Hours</div>
+          <div class="delta">+8.4</div>
+          <div class="context">47.2 vs. 38.8 last year</div>
+        </div>
+        <div class="vs-item up">
+          <div class="lbl">Top speed</div>
+          <div class="delta">+3.2</div>
+          <div class="context">98.4 mph vs. 95.2 mph last year</div>
+        </div>
+        <div class="vs-item up">
+          <div class="lbl">Trips out</div>
+          <div class="delta">+5</div>
+          <div class="context">23 trips vs. 18 last year</div>
+        </div>
+        <div class="vs-item flat">
+          <div class="lbl">Fuel economy</div>
+          <div class="delta">±0%</div>
+          <div class="context">1.5 mpg avg — same as last year</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Share -->
+    <section class="recap-section share">
+      <div class="section-eyebrow">Share the season</div>
+      <h2>Looking good, Hull 042.</h2>
+      <div class="share-canvas-wrap">
+        <canvas id="share-canvas" width="1080" height="1080"></canvas>
+      </div>
+      <div class="share-actions">
+        <button class="share-btn" id="download-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+          Download image
+        </button>
+        <button class="share-btn secondary" id="copy-btn">
+          <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
+          Copy to clipboard
+        </button>
+      </div>
+      <p style="color:var(--text-mute); font-size:12px; margin-top:24px;">
+        1080 × 1080 — sized for Instagram. Posts tagged #HowardCustomBoats get reshared by Howard.
+      </p>
+    </section>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Primary mobile">
+      <div class="mobile-nav-row six">
+      <a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="replay.html"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>Replay</a>
+      <a href="recap.html" class="active"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6L12 2z"/></svg>Season</a>
+      <a href="alerts.html"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 22v-2M4.93 4.93l2.83 2.83M19.07 19.07l-2.83-2.83M2 12h4M22 12h-4M4.93 19.07l2.83-2.83M19.07 4.93l-2.83 2.83"/></svg>Alerts</a>
+      <a href="service.html"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>Service</a>
+      <a href="location.html"><svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>Location</a>
+      </div>
+    </nav>
+
+  <script>
+    // ---------- Render the shareable canvas card ----------
+    (function () {
+      const c = document.getElementById("share-canvas");
+      const ctx = c.getContext("2d");
+      const W = c.width, H = c.height;
+
+      // Background — deep gradient
+      const bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, "#0a1422");
+      bg.addColorStop(0.5, "#0d1a2e");
+      bg.addColorStop(1, "#050a14");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle radial accent
+      const radial = ctx.createRadialGradient(W * 0.7, H * 0.25, 0, W * 0.7, H * 0.25, W * 0.6);
+      radial.addColorStop(0, "rgba(63,182,255,0.25)");
+      radial.addColorStop(1, "transparent");
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, W, H);
+
+      // Helper for text
+      function text(s, x, y, opts = {}) {
+        ctx.fillStyle = opts.color || "#ecf0f3";
+        ctx.font = `${opts.weight || 600} ${opts.size || 32}px Inter, system-ui, sans-serif`;
+        ctx.textAlign = opts.align || "left";
+        ctx.textBaseline = opts.baseline || "alphabetic";
+        if (opts.letterSpacing) {
+          ctx.letterSpacing = opts.letterSpacing + "px";
+        }
+        ctx.fillText(s, x, y);
+      }
+
+      // Top: brand
+      ctx.fillStyle = "#3fb6ff";
+      ctx.font = "700 24px Inter, system-ui, sans-serif";
+      ctx.letterSpacing = "8px";
+      ctx.fillText("HOWARD CUSTOM BOATS", 80, 100);
+
+      // Eyebrow
+      ctx.fillStyle = "#9aa5b1";
+      ctx.font = "600 22px Inter, system-ui, sans-serif";
+      ctx.letterSpacing = "6px";
+      ctx.fillText("MY 2026 SEASON", 80, 150);
+
+      // Big title
+      ctx.letterSpacing = "0px";
+      const titleGrad = ctx.createLinearGradient(80, 200, 700, 380);
+      titleGrad.addColorStop(0, "#ecf0f3");
+      titleGrad.addColorStop(1, "#3fb6ff");
+      ctx.fillStyle = titleGrad;
+      ctx.font = "800 110px Inter, system-ui, sans-serif";
+      ctx.fillText("A good", 80, 320);
+      ctx.fillText("one.", 80, 440);
+
+      // Hull line
+      ctx.fillStyle = "#9aa5b1";
+      ctx.font = "500 26px Inter, system-ui, sans-serif";
+      ctx.fillText("Hull 042 · “Outta Control” · 28' Howard Custom", 80, 500);
+
+      // Big numbers row
+      const stats = [
+        { v: "47.2", u: "hrs",  l: "ON THE WATER" },
+        { v: "98.4", u: "mph",  l: "TOP SPEED" },
+        { v: "412",  u: "nm",   l: "DISTANCE" },
+        { v: "23",   u: "",     l: "TRIPS" },
+      ];
+      const sx = 80, sw = (W - 160) / 4;
+      const sy = 640;
+      stats.forEach((s, i) => {
+        const x = sx + i * sw;
+        ctx.fillStyle = "#6b7785";
+        ctx.font = "600 18px Inter, system-ui, sans-serif";
+        ctx.letterSpacing = "3px";
+        ctx.fillText(s.l, x, sy);
+        ctx.letterSpacing = "0px";
+        ctx.fillStyle = "#ecf0f3";
+        ctx.font = "800 72px Inter, system-ui, sans-serif";
+        ctx.fillText(s.v, x, sy + 90);
+        if (s.u) {
+          ctx.fillStyle = "#9aa5b1";
+          ctx.font = "500 28px Inter, system-ui, sans-serif";
+          ctx.fillText(s.u, x + ctx.measureText(s.v).width + 10, sy + 90);
+        }
+      });
+
+      // Bottom: fastest run callout
+      ctx.fillStyle = "#ff5a5f";
+      ctx.font = "700 22px Inter, system-ui, sans-serif";
+      ctx.letterSpacing = "4px";
+      ctx.fillText("FASTEST RUN", 80, 830);
+      ctx.letterSpacing = "0px";
+      ctx.fillStyle = "#ecf0f3";
+      ctx.font = "600 32px Inter, system-ui, sans-serif";
+      ctx.fillText("Apr 22 · Lake Havasu · 98.4 mph", 80, 880);
+
+      // Footer bar
+      ctx.strokeStyle = "rgba(63,182,255,0.4)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(80, 980); ctx.lineTo(W - 80, 980);
+      ctx.stroke();
+
+      ctx.fillStyle = "#6b7785";
+      ctx.font = "500 20px Inter, system-ui, sans-serif";
+      ctx.letterSpacing = "4px";
+      ctx.fillText("HOWARDCUSTOMBOATS.COM", 80, 1020);
+      ctx.textAlign = "right";
+      ctx.fillText("#HOWARDCUSTOMBOATS", W - 80, 1020);
+    })();
+
+    // Download / copy
+    document.getElementById("download-btn").addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.download = "howard-2026-season-hull-042.png";
+      a.href = document.getElementById("share-canvas").toDataURL("image/png");
+      a.click();
+    });
+    document.getElementById("copy-btn").addEventListener("click", async () => {
+      try {
+        const c = document.getElementById("share-canvas");
+        c.toBlob(async (blob) => {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          const btn = document.getElementById("copy-btn");
+          const orig = btn.innerHTML;
+          btn.innerHTML = "Copied ✓";
+          setTimeout(() => { btn.innerHTML = orig; }, 1500);
+        });
+      } catch (e) {
+        alert("Copy not supported in this browser — use Download instead.");
+      }
+    });
+  </script>
+</body>
+</html>

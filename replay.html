@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Run Replay — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" />
+  <style>
+    /* Replay-specific layout */
+    .replay-wrap { padding: 0 24px 24px; }
+    .replay-meta {
+      display: flex; flex-wrap: wrap; gap: 28px; align-items: baseline;
+      padding: 18px 0 14px;
+    }
+    .replay-meta .stat { display: flex; flex-direction: column; gap: 2px; }
+    .replay-meta .stat .lbl { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-mute); }
+    .replay-meta .stat .val { font-size: 20px; font-weight: 600; color: var(--text); }
+    .replay-meta .stat .val .unit { font-size: 12px; color: var(--text-mute); margin-left: 4px; font-weight: 400; }
+
+    .replay-map {
+      width: 100%; height: 56vh; min-height: 420px;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--line); background: #000;
+    }
+
+    .replay-controls {
+      margin-top: 16px;
+      background: var(--bg-elev-1);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+    .replay-transport {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .play-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: none;
+      background: var(--accent); color: #001220; display: grid; place-items: center;
+      cursor: pointer; flex: 0 0 auto;
+      box-shadow: 0 4px 14px rgba(63, 182, 255, .35);
+      transition: transform .1s ease, background .15s ease;
+    }
+    .play-btn:hover { transform: scale(1.05); background: var(--accent-strong); color:#fff; }
+    .play-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+    .time-display {
+      font-variant-numeric: tabular-nums;
+      font-size: 14px; color: var(--text-dim);
+      min-width: 110px;
+    }
+    .time-display strong { color: var(--text); font-weight: 600; }
+
+    .speed-toggle { display: flex; gap: 4px; margin-left: auto; }
+    .speed-toggle button {
+      background: var(--bg-elev-2); color: var(--text-dim);
+      border: 1px solid var(--line); padding: 6px 12px;
+      font-size: 12px; font-weight: 500; border-radius: 6px; cursor: pointer;
+      transition: all .15s ease;
+    }
+    .speed-toggle button.active { background: var(--accent); color: #001220; border-color: var(--accent); }
+    .speed-toggle button:hover:not(.active) { background: var(--bg-elev-3); color: var(--text); }
+
+    .scrubber-row { margin-top: 14px; }
+    .scrubber {
+      width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+      background: var(--bg-elev-3); border-radius: 3px; outline: none;
+      cursor: pointer;
+    }
+    .scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); border: 2px solid #001220;
+      box-shadow: 0 0 0 3px rgba(63, 182, 255, .25);
+      cursor: grab;
+    }
+    .scrubber::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); border: 2px solid #001220; cursor: grab;
+    }
+
+    .telemetry-strip {
+      margin-top: 16px;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+    }
+    .tele-tile {
+      background: var(--bg-elev-2); border: 1px solid var(--line-soft);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+    }
+    .tele-tile .lbl { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-mute); }
+    .tele-tile .val { font-size: 22px; font-weight: 600; color: var(--text); margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .tele-tile .val .unit { font-size: 11px; color: var(--text-mute); margin-left: 4px; font-weight: 400; }
+    .tele-tile.accent .val { color: var(--accent); }
+    .tele-tile.good .val { color: var(--good); }
+    .tele-tile.warn .val { color: var(--warn); }
+
+    .speed-bar-wrap { margin-top: 16px; }
+    .speed-bar-wrap .lbl { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 6px; }
+    .speed-canvas { width: 100%; height: 64px; background: var(--bg-elev-2); border-radius: var(--radius-sm); border: 1px solid var(--line-soft); display: block; }
+
+    .legend {
+      display: flex; gap: 16px; margin-top: 10px;
+      font-size: 11px; color: var(--text-mute);
+    }
+    .legend-swatch {
+      display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 760px) {
+      .telemetry-strip { grid-template-columns: repeat(3, 1fr); }
+      .replay-meta { gap: 14px; }
+    }
+    @media (max-width: 480px) {
+      .replay-map { height: 48vh; min-height: 320px; }
+    }
+
+    /* Boat marker (rotated arrow) */
+    .boat-marker-svg {
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.6));
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="replay.html" class="active">Replay</a>
+      <a href="recap.html">Season</a>
+      <a href="alerts.html">Alerts</a>
+      <a href="mercury.html">Mercury</a>
+      <a href="teague.html">Teague</a>
+      <a href="service.html">Service</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <a href="fleet.html" class="role-toggle" title="Howard staff fleet view">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+        <span>Staff</span>
+      </a>
+      <a href="settings.html" title="Settings" style="color:var(--text-mute);padding:0 8px;">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </a>
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <span class="engine-badge">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg>
+      Last Run · April 19, 2026
+    </span>
+    <h1 style="margin-top:10px;">Run Replay</h1>
+    <div class="sub">Lake Havasu · Hull 042 &ldquo;Outta Control&rdquo; · Twin Mercury Racing 400R</div>
+  </section>
+
+  <main class="replay-wrap">
+    <div class="replay-meta">
+      <div class="stat"><span class="lbl">Duration</span><span class="val">1h 28m</span></div>
+      <div class="stat"><span class="lbl">Distance</span><span class="val">38.4<span class="unit">nm</span></span></div>
+      <div class="stat"><span class="lbl">Top Speed</span><span class="val" style="color:var(--accent)">94.6<span class="unit">mph</span></span></div>
+      <div class="stat"><span class="lbl">Avg Speed</span><span class="val">38.2<span class="unit">mph</span></span></div>
+      <div class="stat"><span class="lbl">Fuel Burned</span><span class="val">41.0<span class="unit">gal</span></span></div>
+      <div class="stat"><span class="lbl">Peak RPM</span><span class="val">5,860<span class="unit">stbd</span></span></div>
+      <div class="stat"><span class="lbl">Water Temp</span><span class="val">71<span class="unit">°F</span></span></div>
+      <div class="stat"><span class="lbl">Air Temp</span><span class="val">82<span class="unit">°F</span></span></div>
+      <div class="stat"><span class="lbl">Wind</span><span class="val">6<span class="unit">mph SW</span></span></div>
+    </div>
+
+    <div class="replay-map" id="replay-map" aria-label="Run replay map"></div>
+
+    <div class="replay-controls">
+      <div class="replay-transport">
+        <button class="play-btn" id="play-btn" aria-label="Play / pause">
+          <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div class="time-display">
+          <strong id="current-time">00:00</strong> <span style="color:var(--text-mute)">/ 1:28:00</span>
+        </div>
+        <div class="speed-toggle" role="group" aria-label="Playback speed">
+          <button data-speed="1">1×</button>
+          <button data-speed="2" class="active">2×</button>
+          <button data-speed="5">5×</button>
+          <button data-speed="10">10×</button>
+          <button data-speed="20">20×</button>
+        </div>
+      </div>
+
+      <div class="scrubber-row">
+        <input type="range" class="scrubber" id="scrubber" min="0" max="1000" value="0" />
+      </div>
+
+      <div class="telemetry-strip">
+        <div class="tele-tile accent"><div class="lbl">Speed</div><div class="val" id="tele-speed">0<span class="unit">mph</span></div></div>
+        <div class="tele-tile"><div class="lbl">RPM · Port</div><div class="val" id="tele-rpm-port">0</div></div>
+        <div class="tele-tile"><div class="lbl">RPM · Stbd</div><div class="val" id="tele-rpm-stbd">0</div></div>
+        <div class="tele-tile good"><div class="lbl">Fuel Flow</div><div class="val" id="tele-fuel">0<span class="unit">gph</span></div></div>
+        <div class="tele-tile"><div class="lbl">Coolant · P</div><div class="val" id="tele-coolant-port">0<span class="unit">°F</span></div></div>
+        <div class="tele-tile"><div class="lbl">Coolant · S</div><div class="val" id="tele-coolant-stbd">0<span class="unit">°F</span></div></div>
+      </div>
+
+      <div class="speed-bar-wrap">
+        <div class="lbl">Speed Profile · drag scrubber or tap to seek</div>
+        <canvas id="speed-canvas" class="speed-canvas" width="2000" height="64"></canvas>
+        <div class="legend">
+          <span><span class="legend-swatch" style="background:#1a6fa8"></span>Idle / displacement</span>
+          <span><span class="legend-swatch" style="background:#3ddc97"></span>Cruise</span>
+          <span><span class="legend-swatch" style="background:#ffb648"></span>Pulling</span>
+          <span><span class="legend-swatch" style="background:#ff5a5f"></span>WOT 80+ mph</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Primary mobile">
+      <div class="mobile-nav-row six">
+      <a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="replay.html" class="active"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>Replay</a>
+      <a href="recap.html"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6L12 2z"/></svg>Season</a>
+      <a href="alerts.html"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 22v-2M4.93 4.93l2.83 2.83M19.07 19.07l-2.83-2.83M2 12h4M22 12h-4M4.93 19.07l2.83-2.83M19.07 4.93l-2.83 2.83"/></svg>Alerts</a>
+      <a href="service.html"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>Service</a>
+      <a href="location.html"><svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>Location</a>
+      </div>
+    </nav>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script>
+    // ---------- Synthesize a Lake Havasu run ----------
+    // Hand-picked waypoints: London Bridge area → Pirate's Cove → Topock Gorge → back.
+    const WAYPOINTS = [
+      { lat: 34.4660, lng: -114.3395, name: "London Bridge" },
+      { lat: 34.4720, lng: -114.3425 },
+      { lat: 34.4820, lng: -114.3470 },
+      { lat: 34.4910, lng: -114.3520 },
+      { lat: 34.5005, lng: -114.3590, name: "Pirate's Cove" },
+      { lat: 34.5110, lng: -114.3690 },
+      { lat: 34.5240, lng: -114.3820 },
+      { lat: 34.5395, lng: -114.4010 },
+      { lat: 34.5530, lng: -114.4280 },
+      { lat: 34.5680, lng: -114.4520, name: "Topock Gorge" },
+      // Turn around
+      { lat: 34.5610, lng: -114.4380 },
+      { lat: 34.5470, lng: -114.4150 },
+      { lat: 34.5340, lng: -114.3960 },
+      { lat: 34.5200, lng: -114.3810 },
+      { lat: 34.5050, lng: -114.3650 },
+      { lat: 34.4920, lng: -114.3540 },
+      { lat: 34.4805, lng: -114.3470 },
+      { lat: 34.4700, lng: -114.3420 },
+      { lat: 34.4660, lng: -114.3395 }
+    ];
+
+    // Speed profile (mph) at each waypoint, interpolated between.
+    // Mirrors what a Howard run feels like: idle out, cruise, two WOT pulls,
+    // slow through gorge for scenery, more pulls on the way back, idle in.
+    const WP_SPEEDS = [
+      4,    // London Bridge - idle out
+      18,   // gentle plane-up
+      52,   // cruise
+      78,   // pulling
+      62,   // ease for Pirate's Cove
+      85,   // WOT pull #1
+      94,   // WOT pull #1 peak (94.6 max)
+      55,   // back to cruise
+      30,   // approaching gorge
+      8,    // idle through gorge
+      14,   // creeping out
+      48,   // cruise back
+      82,   // pulling
+      91,   // WOT pull #2
+      65,   // ease
+      42,   // approaching marina
+      22,   // slow down
+      6,    // idle in
+      3     // back at dock
+    ];
+
+    // Build a fine-grained track by interpolating between waypoints.
+    const STEPS_PER_LEG = 18;
+    const points = [];
+    for (let i = 0; i < WAYPOINTS.length - 1; i++) {
+      const a = WAYPOINTS[i], b = WAYPOINTS[i + 1];
+      const v0 = WP_SPEEDS[i], v1 = WP_SPEEDS[i + 1];
+      for (let s = 0; s < STEPS_PER_LEG; s++) {
+        const t = s / STEPS_PER_LEG;
+        // Slight curvature noise to look like a real boat path (not straight lines)
+        const wob = Math.sin((i * 7 + s) * 0.9) * 0.00015;
+        points.push({
+          lat: a.lat + (b.lat - a.lat) * t + wob,
+          lng: a.lng + (b.lng - a.lng) * t + wob * 0.7,
+          speed: v0 + (v1 - v0) * t + (Math.sin(s * 1.3) * 1.2),  // small ripple
+        });
+      }
+    }
+    points.push({ lat: WAYPOINTS.at(-1).lat, lng: WAYPOINTS.at(-1).lng, speed: 3 });
+
+    // Stamp synthetic telemetry per point. RPM ~ a function of speed for a 400R.
+    // 0 mph ≈ 650 idle; 30 mph ≈ 3800 cruise; 90 mph ≈ 5900 WOT.
+    function rpmFromSpeed(mph) {
+      if (mph < 4) return 650 + mph * 30;
+      if (mph < 25) return 1200 + (mph - 4) * 110;   // plane-up
+      if (mph < 70) return 3400 + (mph - 25) * 35;   // cruise band
+      return 4975 + (mph - 70) * 45;                  // WOT band → ~5875 at 90 mph
+    }
+    points.forEach((p, i) => {
+      const baseRpm = rpmFromSpeed(p.speed);
+      // Port engine runs slightly cooler / slower (mock real-world asymmetry)
+      p.rpmPort = Math.round(baseRpm * 0.997 + Math.sin(i * 0.3) * 8);
+      p.rpmStbd = Math.round(baseRpm + Math.sin(i * 0.27 + 1) * 12);
+      // Fuel flow scales roughly with rpm * load; ~20 gph cruise, ~62 gph WOT per engine pair
+      p.fuelGph = Math.max(1.2, p.speed * 0.58 + (p.speed > 60 ? (p.speed - 60) * 0.9 : 0));
+      // Coolant: warms up over the first ~5 min, then steady with small WOT spikes
+      const warmth = Math.min(1, i / 30);
+      const wotBump = Math.max(0, (p.speed - 70) * 0.35);
+      p.coolantPortF = Math.round(150 + warmth * 12 + wotBump - 2);
+      p.coolantStbdF = Math.round(150 + warmth * 12 + wotBump + 1);
+    });
+
+    const TOTAL_POINTS = points.length;
+    const RUN_DURATION_S = 88 * 60; // 1h 28m
+
+    // ---------- Map ----------
+    const map = L.map("replay-map", {
+      zoomControl: true,
+      attributionControl: false,
+    });
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      subdomains: "abcd", maxZoom: 19,
+    }).addTo(map);
+
+    // Bound map to the track
+    const latlngs = points.map(p => [p.lat, p.lng]);
+    map.fitBounds(latlngs, { padding: [40, 40] });
+
+    // Speed-colored polyline: draw as segments, color per segment
+    function speedColor(mph) {
+      if (mph < 15) return "#1a6fa8";   // idle/displacement
+      if (mph < 55) return "#3ddc97";   // cruise
+      if (mph < 80) return "#ffb648";   // pulling
+      return "#ff5a5f";                  // WOT
+    }
+    for (let i = 0; i < points.length - 1; i++) {
+      const segSpeed = (points[i].speed + points[i + 1].speed) / 2;
+      L.polyline([[points[i].lat, points[i].lng], [points[i + 1].lat, points[i + 1].lng]], {
+        color: speedColor(segSpeed),
+        weight: 4,
+        opacity: 0.88,
+        smoothFactor: 1.2,
+      }).addTo(map);
+    }
+
+    // Named waypoint markers
+    WAYPOINTS.forEach(wp => {
+      if (!wp.name) return;
+      L.circleMarker([wp.lat, wp.lng], {
+        radius: 5, color: "#3fb6ff", fillColor: "#3fb6ff", fillOpacity: 1, weight: 2,
+      }).addTo(map).bindTooltip(wp.name, { permanent: false, direction: "top", offset: [0, -6] });
+    });
+
+    // Boat marker (arrow that rotates with heading)
+    function boatIcon(headingDeg) {
+      const svg = `
+        <svg class="boat-marker-svg" width="28" height="28" viewBox="0 0 28 28"
+             style="transform: rotate(${headingDeg}deg); transform-origin: 14px 14px;">
+          <circle cx="14" cy="14" r="11" fill="#0a0d10" stroke="#3fb6ff" stroke-width="2"/>
+          <path d="M14 5 L19 21 L14 17 L9 21 Z" fill="#3fb6ff"/>
+        </svg>`;
+      return L.divIcon({
+        html: svg, className: "", iconSize: [28, 28], iconAnchor: [14, 14],
+      });
+    }
+    let boatMarker = L.marker(latlngs[0], { icon: boatIcon(0) }).addTo(map);
+
+    // ---------- Speed canvas (mini profile) ----------
+    const canvas = document.getElementById("speed-canvas");
+    const ctx = canvas.getContext("2d");
+    function drawSpeedProfile(playheadIdx) {
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      const maxV = 100;
+      const stepX = W / (TOTAL_POINTS - 1);
+      // Filled gradient bars
+      for (let i = 0; i < TOTAL_POINTS - 1; i++) {
+        const v = (points[i].speed + points[i + 1].speed) / 2;
+        const h = (v / maxV) * H;
+        ctx.fillStyle = speedColor(v);
+        ctx.fillRect(i * stepX, H - h, stepX + 0.5, h);
+      }
+      // Playhead
+      const px = playheadIdx * stepX;
+      ctx.strokeStyle = "#ecf0f3";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px, 0); ctx.lineTo(px, H);
+      ctx.stroke();
+    }
+    drawSpeedProfile(0);
+
+    // ---------- Playback ----------
+    const playBtn = document.getElementById("play-btn");
+    const playIcon = document.getElementById("play-icon");
+    const scrubber = document.getElementById("scrubber");
+    const timeEl = document.getElementById("current-time");
+    const speedToggle = document.querySelectorAll(".speed-toggle button");
+    const PLAY_PATH = '<path d="M8 5v14l11-7z"/>';
+    const PAUSE_PATH = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
+
+    let playing = false;
+    let playSpeed = 2;
+    let playhead = 0; // float index into points
+    let lastTs = null;
+
+    function fmtTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+    function bearing(a, b) {
+      const dy = b.lat - a.lat, dx = b.lng - a.lng;
+      return (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360;
+    }
+    function setIdx(idx) {
+      idx = Math.max(0, Math.min(TOTAL_POINTS - 1, idx));
+      playhead = idx;
+      const i = Math.floor(idx);
+      const p = points[i];
+      const nxt = points[Math.min(i + 1, TOTAL_POINTS - 1)];
+      // Boat marker position + heading
+      boatMarker.setLatLng([p.lat, p.lng]);
+      boatMarker.setIcon(boatIcon(bearing(p, nxt)));
+      // Telemetry strip
+      document.getElementById("tele-speed").innerHTML       = `${p.speed.toFixed(1)}<span class="unit">mph</span>`;
+      document.getElementById("tele-rpm-port").innerHTML    = `${p.rpmPort.toLocaleString()}`;
+      document.getElementById("tele-rpm-stbd").innerHTML    = `${p.rpmStbd.toLocaleString()}`;
+      document.getElementById("tele-fuel").innerHTML        = `${p.fuelGph.toFixed(1)}<span class="unit">gph</span>`;
+      document.getElementById("tele-coolant-port").innerHTML= `${p.coolantPortF}<span class="unit">°F</span>`;
+      document.getElementById("tele-coolant-stbd").innerHTML= `${p.coolantStbdF}<span class="unit">°F</span>`;
+      // Time label
+      const tSec = (idx / (TOTAL_POINTS - 1)) * RUN_DURATION_S;
+      const m = Math.floor(tSec / 60);
+      const s = Math.floor(tSec % 60);
+      timeEl.textContent = `${String(Math.floor(m / 60)).padStart(1, "0")}:${String(m % 60).padStart(2, "0")}:${String(s).padStart(2, "0")}`.replace(/^0:/, "");
+      // Scrubber + canvas playhead
+      scrubber.value = Math.round((idx / (TOTAL_POINTS - 1)) * 1000);
+      drawSpeedProfile(idx);
+    }
+
+    function tick(ts) {
+      if (!playing) { lastTs = null; return; }
+      if (lastTs == null) lastTs = ts;
+      const dt = (ts - lastTs) / 1000;
+      lastTs = ts;
+      // Run completes in RUN_DURATION_S real seconds at 1x
+      const indicesPerSecond = (TOTAL_POINTS - 1) / RUN_DURATION_S;
+      playhead += dt * indicesPerSecond * playSpeed;
+      if (playhead >= TOTAL_POINTS - 1) {
+        playhead = TOTAL_POINTS - 1;
+        setPlaying(false);
+      }
+      setIdx(playhead);
+      requestAnimationFrame(tick);
+    }
+    function setPlaying(p) {
+      playing = p;
+      playIcon.innerHTML = p ? PAUSE_PATH : PLAY_PATH;
+      if (p) {
+        if (playhead >= TOTAL_POINTS - 1) playhead = 0;
+        lastTs = null;
+        requestAnimationFrame(tick);
+      }
+    }
+    playBtn.addEventListener("click", () => setPlaying(!playing));
+    scrubber.addEventListener("input", e => {
+      const idx = (parseInt(e.target.value, 10) / 1000) * (TOTAL_POINTS - 1);
+      setIdx(idx);
+    });
+    speedToggle.forEach(b => b.addEventListener("click", () => {
+      speedToggle.forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      playSpeed = parseFloat(b.dataset.speed);
+    }));
+    // Initialize
+    setIdx(0);
+  </script>
+</body>
+</html>

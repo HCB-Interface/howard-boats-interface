@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Predictive Alerts — Howard Custom Boats</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .alerts-summary {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+      margin: 18px 0 28px;
+    }
+    .summary-tile {
+      background: var(--bg-elev-1); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 18px 20px;
+    }
+    .summary-tile .lbl { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-mute); }
+    .summary-tile .val { font-size: 32px; font-weight: 700; margin-top: 6px; line-height: 1; }
+    .summary-tile.warn .val { color: var(--warn); }
+    .summary-tile.good .val { color: var(--good); }
+    .summary-tile.bad  .val { color: var(--bad); }
+    .summary-tile .sub { font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+
+    .alert-card {
+      background: var(--bg-elev-1); border: 1px solid var(--line);
+      border-left-width: 4px;
+      border-radius: var(--radius);
+      padding: 22px 24px; margin-bottom: 16px;
+      display: grid; grid-template-columns: 1fr 280px; gap: 28px;
+      align-items: center;
+    }
+    .alert-card.severity-watch    { border-left-color: var(--accent); }
+    .alert-card.severity-soon     { border-left-color: var(--warn); }
+    .alert-card.severity-action   { border-left-color: var(--bad); }
+
+    .alert-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    .alert-head h3 { margin: 0; font-size: 18px; font-weight: 600; color: var(--text); }
+    .alert-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 5px 10px; border-radius: 999px; font-weight: 600;
+    }
+    .alert-badge .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .alert-badge.watch  { background: rgba(63,182,255,.14); color: var(--accent); }
+    .alert-badge.watch .dot  { background: var(--accent); }
+    .alert-badge.soon   { background: rgba(255,182,72,.14); color: var(--warn); }
+    .alert-badge.soon .dot   { background: var(--warn); }
+    .alert-badge.action { background: rgba(255,90,95,.14); color: var(--bad); }
+    .alert-badge.action .dot { background: var(--bad); }
+
+    .alert-desc { color: var(--text-dim); line-height: 1.55; margin: 0 0 12px; font-size: 14px; }
+    .alert-desc strong { color: var(--text); font-weight: 600; }
+
+    .alert-meta { display: flex; gap: 22px; flex-wrap: wrap; font-size: 12px; color: var(--text-mute); margin-top: 14px; }
+    .alert-meta div { display: flex; flex-direction: column; gap: 2px; }
+    .alert-meta .ml { letter-spacing: 0.14em; text-transform: uppercase; font-size: 10px; }
+    .alert-meta .mv { color: var(--text); font-size: 13px; font-weight: 500; }
+
+    .alert-actions {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .alert-actions .schedule-btn {
+      background: var(--accent); color: #001220;
+      border: none; padding: 12px 18px; border-radius: 8px;
+      font-weight: 600; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .15s ease;
+    }
+    .alert-actions .schedule-btn:hover { background: var(--accent-strong); color: #fff; transform: translateY(-1px); }
+    .alert-actions .schedule-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .alert-actions .dismiss-btn {
+      background: var(--bg-elev-2); color: var(--text-dim);
+      border: 1px solid var(--line); padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; cursor: pointer; transition: all .15s ease;
+    }
+    .alert-actions .dismiss-btn:hover { background: var(--bg-elev-3); color: var(--text); }
+
+    .alert-chart {
+      background: var(--bg-elev-2); border: 1px solid var(--line-soft);
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      margin-top: 12px;
+    }
+    .alert-chart-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 11px; color: var(--text-mute); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .alert-chart-head .label-value { color: var(--text); font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; }
+    .alert-chart svg { width: 100%; height: 64px; margin-top: 6px; display: block; }
+
+    .all-clear {
+      background: var(--bg-elev-1); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 22px 24px; margin-top: 20px;
+    }
+    .all-clear-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 28px;
+      margin-top: 14px;
+    }
+    .clear-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .clear-item:last-child, .clear-item:nth-last-child(2) { border-bottom: none; }
+    .clear-check {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(61,220,151,0.12); color: var(--good);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .clear-check svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .clear-text .name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .clear-text .meta { font-size: 12px; color: var(--text-mute); margin-top: 2px; }
+
+    .method-box {
+      background: var(--bg-elev-2); border: 1px solid var(--line-soft);
+      border-radius: var(--radius-sm); padding: 16px 20px;
+      margin-top: 24px; font-size: 13px; color: var(--text-dim); line-height: 1.6;
+    }
+    .method-box strong { color: var(--text); }
+
+    @media (max-width: 880px) {
+      .alert-card { grid-template-columns: 1fr; gap: 16px; }
+      .alerts-summary { grid-template-columns: repeat(2, 1fr); }
+      .all-clear-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" id="brand">
+      <div class="brand-mark">HCB</div>
+      <img class="brand-logo-img" src="assets/logo.png" alt="Howard Custom Boats"
+           onload="this.style.display='block'; document.getElementById('brand').classList.add('has-logo');"
+           onerror="this.style.display='none';" />
+      <div class="brand-text"><strong>Howard</strong> &nbsp;Custom Boats</div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <a href="index.html">Dashboard</a>
+      <a href="replay.html">Replay</a>
+      <a href="recap.html">Season</a>
+      <a href="alerts.html" class="active">Alerts</a>
+      <a href="mercury.html">Mercury</a>
+      <a href="teague.html">Teague</a>
+      <a href="service.html">Service</a>
+      <a href="location.html">Location</a>
+    </nav>
+    <div class="user-chip">
+      <a href="fleet.html" class="role-toggle" title="Howard staff fleet view">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/></svg>
+        <span>Staff</span>
+      </a>
+      <a href="settings.html" title="Settings" style="color:var(--text-mute);padding:0 8px;">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </a>
+      <div class="avatar" id="avatar-initials">JB</div>
+      <span id="user-name">Jake Brunsell</span>
+    </div>
+  </header>
+
+  <section class="page-title">
+    <span class="engine-badge">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M12 2v4M12 22v-2M4.93 4.93l2.83 2.83M19.07 19.07l-2.83-2.83M2 12h4M22 12h-4M4.93 19.07l2.83-2.83M19.07 4.93l-2.83 2.83"/></svg>
+      Predictive Maintenance
+    </span>
+    <h1 style="margin-top:10px;">Heads-up</h1>
+    <div class="sub">Trends pulled from your last 30 runs against the day-one delivery baseline. Catch issues before they catch you.</div>
+  </section>
+
+  <main class="container">
+    <div class="alerts-summary">
+      <div class="summary-tile warn">
+        <div class="lbl">Watching</div>
+        <div class="val">2</div>
+        <div class="sub">No service required yet</div>
+      </div>
+      <div class="summary-tile bad">
+        <div class="lbl">Action soon</div>
+        <div class="val">1</div>
+        <div class="sub">Recommend service within 2 runs</div>
+      </div>
+      <div class="summary-tile good">
+        <div class="lbl">All clear</div>
+        <div class="val">14</div>
+        <div class="sub">Systems trending healthy</div>
+      </div>
+      <div class="summary-tile">
+        <div class="lbl">Baseline date</div>
+        <div class="val" style="font-size: 22px; line-height: 1.2; margin-top: 8px;">Jun 14, 2024</div>
+        <div class="sub">Delivery sea trial</div>
+      </div>
+    </div>
+
+    <!-- Alert 1: Starboard coolant trending warm -->
+    <article class="alert-card severity-action">
+      <div>
+        <div class="alert-head">
+          <h3>Starboard 400R · Coolant peaks trending warm</h3>
+          <span class="alert-badge action"><span class="dot"></span>Action soon</span>
+        </div>
+        <p class="alert-desc">
+          Starboard engine coolant peaks have climbed <strong>8°F</strong> across your last 5 WOT pulls — from 156°F (Apr 2) to 164°F (Apr 19). Port engine on the same runs held flat at 158°F ±1°F. Most likely cause: <strong>raw water impeller wearing or pickup screen partially obstructed.</strong> Not in alarm territory yet, but the slope is consistent and won't reverse on its own.
+        </p>
+        <div class="alert-chart">
+          <div class="alert-chart-head">
+            <span>Stbd coolant peak · last 8 runs</span>
+            <span class="label-value">164°F <span style="color:var(--bad)">▲ +8°F</span></span>
+          </div>
+          <svg viewBox="0 0 600 64" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="warn-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff5a5f" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#ff5a5f" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <!-- 8 data points: 154,156,156,158,160,161,163,164 mapped to y -->
+            <path d="M0,46 L85,40 L170,40 L255,32 L340,24 L425,21 L510,15 L600,12" fill="none" stroke="#ff5a5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,46 L85,40 L170,40 L255,32 L340,24 L425,21 L510,15 L600,12 L600,64 L0,64 Z" fill="url(#warn-grad)"/>
+            <circle cx="600" cy="12" r="4" fill="#ff5a5f" stroke="#0a0d10" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="alert-meta">
+          <div><span class="ml">First detected</span><span class="mv">Apr 11, 2026 (3 runs ago)</span></div>
+          <div><span class="ml">Projected to alarm</span><span class="mv">~6 more runs at current slope</span></div>
+          <div><span class="ml">Confidence</span><span class="mv">High · clear linear trend</span></div>
+        </div>
+      </div>
+      <div class="alert-actions">
+        <button class="schedule-btn">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>
+          Schedule at Howard Service
+        </button>
+        <button class="dismiss-btn">Remind me after next run</button>
+      </div>
+    </article>
+
+    <!-- Alert 2: Battery 2 voltage drop -->
+    <article class="alert-card severity-soon">
+      <div>
+        <div class="alert-head">
+          <h3>House battery · Voltage dropping faster between trips</h3>
+          <span class="alert-badge soon"><span class="dot"></span>Watch</span>
+        </div>
+        <p class="alert-desc">
+          Resting voltage on the house battery has dropped from <strong>12.78V</strong> (Mar 28) to <strong>12.42V</strong> (Apr 19) — a quicker decline than typical for the 14-day windows between your trips. Could be normal age (battery is 3.2 years old) or a new parasitic draw added in the last month. Worth checking the stereo amp standby and the new accent lighting circuit.
+        </p>
+        <div class="alert-chart">
+          <div class="alert-chart-head">
+            <span>Resting voltage at boat-on · last 6 trips</span>
+            <span class="label-value">12.42V <span style="color:var(--warn)">▼ -0.36V</span></span>
+          </div>
+          <svg viewBox="0 0 600 64" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="warn-grad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffb648" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#ffb648" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,14 L120,16 L240,22 L360,30 L480,38 L600,46" fill="none" stroke="#ffb648" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,14 L120,16 L240,22 L360,30 L480,38 L600,46 L600,64 L0,64 Z" fill="url(#warn-grad2)"/>
+            <circle cx="600" cy="46" r="4" fill="#ffb648" stroke="#0a0d10" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="alert-meta">
+          <div><span class="ml">First detected</span><span class="mv">Apr 4, 2026 (2 trips ago)</span></div>
+          <div><span class="ml">Likely causes</span><span class="mv">Battery age · new parasitic load</span></div>
+          <div><span class="ml">Confidence</span><span class="mv">Medium · still within range</span></div>
+        </div>
+      </div>
+      <div class="alert-actions">
+        <button class="schedule-btn">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>
+          Schedule at Howard Service
+        </button>
+        <button class="dismiss-btn">I'll check it myself</button>
+      </div>
+    </article>
+
+    <!-- Alert 3: Bilge cycle spike -->
+    <article class="alert-card severity-watch">
+      <div>
+        <div class="alert-head">
+          <h3>Forward bilge pump · Cycle count up this week</h3>
+          <span class="alert-badge watch"><span class="dot"></span>Watch</span>
+        </div>
+        <p class="alert-desc">
+          Forward bilge has cycled <strong>6 times since Apr 12</strong>, versus a baseline of 1–2 cycles every two weeks. Boat has been on its trailer that whole time, so no obvious source. Could be condensation from the temperature swings, residual washdown water, or — less likely — a small intake leak. Worth a visual check at the next launch.
+        </p>
+        <div class="alert-chart">
+          <div class="alert-chart-head">
+            <span>Forward bilge cycles · last 8 weeks</span>
+            <span class="label-value">6 this week <span style="color:var(--accent)">▲ vs. 1.4 avg</span></span>
+          </div>
+          <svg viewBox="0 0 600 64" preserveAspectRatio="none">
+            <g fill="#3fb6ff">
+              <rect x="10"  y="56" width="60" height="8"/>
+              <rect x="85"  y="52" width="60" height="12"/>
+              <rect x="160" y="56" width="60" height="8"/>
+              <rect x="235" y="58" width="60" height="6"/>
+              <rect x="310" y="52" width="60" height="12"/>
+              <rect x="385" y="56" width="60" height="8"/>
+              <rect x="460" y="58" width="60" height="6"/>
+              <rect x="535" y="24" width="60" height="40" opacity="1"/>
+            </g>
+          </svg>
+        </div>
+        <div class="alert-meta">
+          <div><span class="ml">First detected</span><span class="mv">Apr 12, 2026 (this week)</span></div>
+          <div><span class="ml">Most likely cause</span><span class="mv">Condensation / washdown residual</span></div>
+          <div><span class="ml">Confidence</span><span class="mv">Low · still small absolute count</span></div>
+        </div>
+      </div>
+      <div class="alert-actions">
+        <button class="schedule-btn">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>
+          Schedule at Howard Service
+        </button>
+        <button class="dismiss-btn">Dismiss · will inspect</button>
+      </div>
+    </article>
+
+    <!-- All Clear section -->
+    <div class="all-clear">
+      <div class="section-title" style="margin-top:0;">
+        <h2>All clear · 14 systems trending healthy</h2>
+        <span style="font-size:12px;color:var(--text-mute);">Updated 2 hours ago at last sync</span>
+      </div>
+      <div class="all-clear-grid">
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Engine hours within service window</div><div class="meta">Both engines · next 100-hr due in 11.9 hrs</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Oil pressure baseline · Port</div><div class="meta">Steady at 71 psi peak, day-one was 72 psi</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Oil pressure baseline · Stbd</div><div class="meta">Steady at 70 psi peak, day-one was 71 psi</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Coolant peak · Port</div><div class="meta">158°F ±1°F over last 8 runs · holding</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Fuel flow vs. expected</div><div class="meta">Within 2% of delivery curve at all RPM bands</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Trim authority</div><div class="meta">Both engines hitting full travel on each cycle</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Start battery</div><div class="meta">12.74V resting · 850 CCA load test passed</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Bilge · main</div><div class="meta">Normal cycle frequency · float switch tested</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">ECU fault log</div><div class="meta">No active codes · 0 pending since last sync</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Module signal · WiFi</div><div class="meta">Connected to "Howard Yard" · -52 dBm</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">GPS fix quality</div><div class="meta">±3m last sync · 14 satellites tracked</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Geofence integrity</div><div class="meta">In zone · no breach events</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Fuel system pressure</div><div class="meta">Holds spec through trip cycle</div></div>
+        </div>
+        <div class="clear-item">
+          <div class="clear-check"><svg viewBox="0 0 24 24"><polyline points="5 12 10 17 19 8"/></svg></div>
+          <div class="clear-text"><div class="name">Module firmware</div><div class="meta">v1.4.2 · current</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="method-box">
+      <strong>How this works.</strong> Your Howard module logs ~40 metrics every run and at rest. We compare each metric to your boat's own day-one delivery baseline — not a generic spec sheet — and surface trends before they cross alarm thresholds. Predictions are based on trajectory slope, not single readings, so a one-off hot spike won't nag you and a slow drift won't slip by. When something looks worth a wrench, you'll see it here with a path straight to <a href="service.html" style="color:var(--accent);">Howard Service</a>. Nothing here gets shared with Howard unless you book service or grant access.
+    </div>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Primary mobile">
+      <div class="mobile-nav-row six">
+      <a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="replay.html"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>Replay</a>
+      <a href="recap.html"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6L12 2z"/></svg>Season</a>
+      <a href="alerts.html" class="active"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 22v-2M4.93 4.93l2.83 2.83M19.07 19.07l-2.83-2.83M2 12h4M22 12h-4M4.93 19.07l2.83-2.83M19.07 4.93l-2.83 2.83"/></svg>Alerts</a>
+      <a href="service.html"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>Service</a>
+      <a href="location.html"><svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>Location</a>
+      </div>
+    </nav>
+</body>
+</html>

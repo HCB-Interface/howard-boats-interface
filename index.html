@@ -24,10 +24,12 @@
 
     <nav class="nav" aria-label="Primary">
       <a href="index.html" class="active">Dashboard</a>
+      <a href="replay.html">Replay</a>
+      <a href="recap.html">Season</a>
+      <a href="alerts.html">Alerts</a>
       <a href="mercury.html">Mercury</a>
       <a href="teague.html">Teague</a>
       <a href="service.html">Service</a>
-      <a href="expenses.html">Expenses</a>
       <a href="location.html">Location</a>
     </nav>
 
@@ -175,7 +177,33 @@
       </div>
     </div>
 
-    <!-- Quick summary strip -->
+    <!-- Hero pitch row: Replay / Season / Alerts -->
+    <div class="section-title">
+      <h2>Last Run &amp; Highlights</h2>
+      <span style="font-size:12px;color:var(--text-mute);">Pulled from your boat's last sync</span>
+    </div>
+    <div class="grid">
+      <a class="card col-4" href="replay.html" style="display:block;color:inherit;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:radial-gradient(420px 220px at 80% 10%,rgba(63,182,255,0.18) 0%,transparent 70%);pointer-events:none;"></div>
+        <h3>Run Replay</h3>
+        <div class="big" style="font-size:30px;line-height:1.1;margin-top:4px;">94.6<span class="unit">mph</span></div>
+        <div class="foot">Apr 19 &middot; Lake Havasu &middot; 1h 28m &middot; play it back &rarr;</div>
+      </a>
+      <a class="card col-4" href="recap.html" style="display:block;color:inherit;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:radial-gradient(420px 220px at 20% 10%,rgba(255,90,95,0.14) 0%,transparent 70%);pointer-events:none;"></div>
+        <h3>2026 Season</h3>
+        <div class="big" style="font-size:30px;line-height:1.1;margin-top:4px;">47.2<span class="unit">hrs</span></div>
+        <div class="foot">23 trips &middot; top speed 98.4 mph &middot; year in review &rarr;</div>
+      </a>
+      <a class="card col-4" href="alerts.html" style="display:block;color:inherit;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:radial-gradient(420px 220px at 80% 80%,rgba(255,182,72,0.16) 0%,transparent 70%);pointer-events:none;"></div>
+        <h3>Predictive Alerts</h3>
+        <div class="big" style="font-size:30px;line-height:1.1;margin-top:4px;color:var(--warn);">3</div>
+        <div class="foot">1 action soon &middot; 2 watch &middot; review &rarr;</div>
+      </a>
+    </div>
+
+    <!-- Secondary Quick Look -->
     <div class="section-title">
       <h2>Quick Look</h2>
     </div>
@@ -200,33 +228,15 @@
 
   <!-- Mobile bottom nav (shown ≤640px) -->
   <nav class="mobile-nav" aria-label="Primary mobile">
-    <div class="mobile-nav-row six">
-      <a href="index.html" class="active">
-        <svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>
-        Home
-      </a>
-      <a href="mercury.html">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-        Mercury
-      </a>
-      <a href="teague.html">
-        <svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
-        Teague
-      </a>
-      <a href="service.html">
-        <svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>
-        Service
-      </a>
-      <a href="expenses.html">
-        <svg viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Expenses
-      </a>
-      <a href="location.html">
-        <svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>
-        Location
-      </a>
-    </div>
-  </nav>
+      <div class="mobile-nav-row six">
+      <a href="index.html" class="active"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="replay.html"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>Replay</a>
+      <a href="recap.html"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6L12 2z"/></svg>Season</a>
+      <a href="alerts.html"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 22v-2M4.93 4.93l2.83 2.83M19.07 19.07l-2.83-2.83M2 12h4M22 12h-4M4.93 19.07l2.83-2.83M19.07 4.93l-2.83 2.83"/></svg>Alerts</a>
+      <a href="service.html"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a5 5 0 0 0-7 6.4l-5 5a2 2 0 1 0 2.8 2.8l5-5a5 5 0 0 0 6.4-7l-2.3 2.3-2-.6-.6-2 2.7-1.9Z"/></svg>Service</a>
+      <a href="location.html"><svg viewBox="0 0 24 24"><path d="M12 22s8-7 8-13a8 8 0 1 0-16 0c0 6 8 13 8 13Z"/><circle cx="12" cy="9" r="3"/></svg>Location</a>
+      </div>
+    </nav>
 
   <!-- Service reminder toast -->
   <div class="toast-stack" id="toast-stack"></div>
